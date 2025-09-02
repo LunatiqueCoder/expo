@@ -1,6 +1,6 @@
 {
-  "name": "expo-maps",
-  "version": "0.12.4",
+  "name": "shift-expo-maps",
+  "version": "0.0.2",
   "description": "Provides a Map component that uses Google Maps on Android and Apple Maps on iOS.",
   "main": "src/index.ts",
   "types": "build/index.d.ts",
