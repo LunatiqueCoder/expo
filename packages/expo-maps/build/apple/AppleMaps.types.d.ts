@@ -401,6 +401,11 @@ export type AppleMapsViewProps = {
      */
     onMarkerClick?: (event: AppleMapsMarker) => void;
     /**
+     * Lambda invoked when the annotation is clicked
+     * @platform ios 18.0+
+     */
+    onAnnotationClick?: (event: AppleMapsMarker) => void;
+    /**
      * Lambda invoked when the polyline is clicked
      * @platform ios 18.0+
      */

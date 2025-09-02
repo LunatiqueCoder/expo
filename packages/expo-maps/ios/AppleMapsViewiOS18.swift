@@ -92,19 +92,36 @@ struct AppleMapsViewiOS18: View, AppleMapsViewProtocol {
             annotation.title,
             coordinate: annotation.clLocationCoordinate2D
           ) {
-            ZStack {
-              if let icon = annotation.icon {
-                Image(uiImage: icon.ref)
-                  .resizable()
-                  .frame(width: 50, height: 50)
-              } else {
-                RoundedRectangle(cornerRadius: 5)
-                  .fill(annotation.backgroundColor)
-              }
+              let isSelected = state.selectedAnnotationId == annotation.id
+
+              let normalBg = annotation.backgroundColor
+              let normalText = annotation.textColor
+              let normalBorder = Color(white: 0.82)
+
+              let selectedBg = Color(red: 0x27/255.0, green: 0x7D/255.0, blue: 0xA0/255.0) // #277DA0
+              let selectedText = Color.white
+              let selectedBorder = selectedBg
               Text(annotation.text)
-                .foregroundStyle(annotation.textColor)
-                .padding(5)
-            }
+                .font(.custom("Montserrat-Medium", size: 14))
+                .foregroundStyle(isSelected ? selectedText : normalText)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(
+                  RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(isSelected ? selectedBg : normalBg)
+                    .overlay(
+                      RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(isSelected ? selectedBorder : normalBorder, lineWidth: 1)
+                    )
+                )
+                .highPriorityGesture(
+                  TapGesture().onEnded {
+                    state.selectedAnnotationId = annotation.id     
+                    props.onAnnotationClick([ "id": annotation.id ])
+                  }
+                )
+                .animation(.easeInOut(duration: 0.15), value: isSelected)
+                .zIndex(isSelected ? 1 : 0)
           }
         }
 
