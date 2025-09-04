@@ -79,6 +79,8 @@ export const GoogleMapsView = React.forwardRef<GoogleMapsViewType, GoogleMapsVie
 
     const parsedMarkers = markers?.map((marker) => ({
       ...marker,
+      backgroundColor: processColor(marker.backgroundColor) ?? undefined,
+      textColor: processColor(marker.textColor) ?? undefined,
       // @ts-expect-error
       icon: marker.icon?.__expo_shared_object_id__,
     }));
