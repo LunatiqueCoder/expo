@@ -6,11 +6,25 @@
 
 ### 🎉 New features
 
-- [iOS] Add keepAudioSessionActive option to prevent session deactivation ([#39250](https://github.com/expo/expo/pull/39250) by [@hirbod](https://github.com/hirbod))
-
 ### 🐛 Bug fixes
 
 ### 💡 Others
+
+## 1.0.9 — 2025-09-03
+
+### 💡 Others
+
+- [Android] Bump media3 version to 1.8.0. ([#39187](https://github.com/expo/expo/pull/39187) by [@behenate](https://github.com/behenate))
+
+## 1.0.8 — 2025-09-02
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.7 — 2025-08-31
+
+### 🎉 New features
+
+- [iOS] Add keepAudioSessionActive option to prevent session deactivation ([#39250](https://github.com/expo/expo/pull/39250) by [@hirbod](https://github.com/hirbod))
 
 ## 1.0.6 — 2025-08-27
 

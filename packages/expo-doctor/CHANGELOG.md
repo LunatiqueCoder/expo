@@ -10,6 +10,20 @@
 
 ### 💡 Others
 
+## 1.17.5 — 2025-09-04
+
+### 💡 Others
+
+- Use autolinking information to filter out packages that aren't native modules from React Native Directory check ([#39272](https://github.com/expo/expo/pull/39272) by [@kitten](https://github.com/kitten))
+
+## 1.17.4 — 2025-09-02
+
+_This version does not introduce any user-facing changes._
+
+## 1.17.3 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
 ## 1.17.2 — 2025-08-27
 
 ### 💡 Others

@@ -10,6 +10,29 @@
 
 ### 💡 Others
 
+## 54.0.0-preview.15 — 2025-09-04
+
+### 💡 Others
+
+- Move `isLiquidGlassAvailable` function to `ExpoGlassEffect` ([#39349](https://github.com/expo/expo/pull/39349) by [@Ubax](https://github.com/Ubax))
+
+## 54.0.0-preview.14 — 2025-09-03
+
+### 💡 Others
+
+- load isLiquidGlassAvailable lazily ([#39361](https://github.com/expo/expo/pull/39361) by [@Ubax](https://github.com/Ubax))
+
+## 54.0.0-preview.13 — 2025-09-02
+
+### 🎉 New features
+
+- Add support for React Native Factory when extending ExpoAppDelegate on macOS. ([#35061](https://github.com/expo/expo/pull/35061) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- Add `isLiquidGlassAvailable` function ([#39319](https://github.com/expo/expo/pull/39319) by [@Ubax](https://github.com/Ubax))
+
+## 54.0.0-preview.12 — 2025-08-31
+
+_This version does not introduce any user-facing changes._
+
 ## 54.0.0-preview.11 — 2025-08-28
 
 _This version does not introduce any user-facing changes._
