@@ -13,6 +13,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -22,6 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import android.view.MotionEvent
+import android.view.ViewGroup
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -69,6 +74,105 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
   override val props = GoogleMapsViewProps()
 
   private val onMapLoaded by EventDispatcher<Unit>()
+  
+  // Track gesture state to manage parent scroll blocking
+  private var isMapInteracting = false
+
+  init {
+    // More aggressive touch handling to prevent parent scroll interference
+    isClickable = true
+    isFocusable = true
+  }
+
+  override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+    // Block parent from intercepting any touch events on the map
+    ev?.let { event ->
+      when (event.action and MotionEvent.ACTION_MASK) {
+        MotionEvent.ACTION_DOWN -> {
+          // Aggressively block parent interception
+          requestDisallowInterceptTouchEvent(true)
+          findScrollableParent()?.requestDisallowInterceptTouchEvent(true)
+          isMapInteracting = true
+        }
+        MotionEvent.ACTION_POINTER_DOWN -> {
+          // Multi-touch (pinch) - definitely block parent
+          requestDisallowInterceptTouchEvent(true)
+          findScrollableParent()?.requestDisallowInterceptTouchEvent(true)
+          isMapInteracting = true
+        }
+        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+          // Re-enable parent scrolling
+          requestDisallowInterceptTouchEvent(false)
+          findScrollableParent()?.requestDisallowInterceptTouchEvent(false)
+          isMapInteracting = false
+        }
+      }
+    }
+    return false // Don't intercept, let map handle it
+  }
+
+  override fun onTouchEvent(event: MotionEvent?): Boolean {
+    // Consume touch events and ensure parent doesn't interfere
+    event?.let { ev ->
+      when (ev.action and MotionEvent.ACTION_MASK) {
+        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+          // Block all parent views from intercepting
+          var currentParent = parent
+          while (currentParent != null) {
+            currentParent.requestDisallowInterceptTouchEvent(true)
+            currentParent = currentParent.parent
+          }
+        }
+        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+          // Re-enable parent interception
+          var currentParent = parent
+          while (currentParent != null) {
+            currentParent.requestDisallowInterceptTouchEvent(false)
+            currentParent = currentParent.parent
+          }
+        }
+      }
+    }
+    
+    return super.onTouchEvent(event)
+  }
+
+  private fun findScrollableParent(): android.view.ViewGroup? {
+    var currentParent = parent
+    while (currentParent != null) {
+      if (currentParent.javaClass.name.contains("ScrollView") || 
+          currentParent.javaClass.name.contains("Scroll")) {
+        return currentParent as? android.view.ViewGroup
+      }
+      currentParent = currentParent.parent
+    }
+    return null
+  }
+
+  override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+    // Intercept at the dispatch level to prevent parent scrollview interference
+    ev?.let { event ->
+      when (event.action and MotionEvent.ACTION_MASK) {
+        MotionEvent.ACTION_DOWN -> {
+          // Block parent interception immediately at dispatch level
+          var p = parent
+          while (p != null) {
+            p.requestDisallowInterceptTouchEvent(true)
+            p = p.parent
+          }
+        }
+        MotionEvent.ACTION_POINTER_DOWN -> {
+          // Pinch detected - aggressive blocking
+          var p = parent
+          while (p != null) {
+            p.requestDisallowInterceptTouchEvent(true)
+            p = p.parent
+          }
+        }
+      }
+    }
+    return super.dispatchTouchEvent(ev)
+  }
 
   private val onMapClick by EventDispatcher<MapClickEvent>()
   private val onMapLongClick by EventDispatcher<MapClickEvent>()
