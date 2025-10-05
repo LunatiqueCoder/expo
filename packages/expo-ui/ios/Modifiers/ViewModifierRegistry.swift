@@ -134,6 +134,98 @@ internal struct ForegroundColorModifier: ViewModifier, Record {
   }
 }
 
+internal enum ForegroundStyleType: String, Enumerable {
+  case color
+  case hierarchical
+  case linearGradient
+  case radialGradient
+  case angularGradient
+}
+
+internal enum ForegroundHierarchicalStyleType: String, Enumerable {
+  case primary
+  case secondary
+  case tertiary
+  case quaternary
+  case quinary
+}
+
+internal struct ForegroundStyleModifier: ViewModifier, Record {
+  @Field var styleType: ForegroundStyleType = .color
+  @Field var hierarchicalStyle: ForegroundHierarchicalStyleType = .primary
+  @Field var color: Color?
+  @Field var colors: [Color]?
+  @Field var startPoint: UnitPoint?
+  @Field var endPoint: UnitPoint?
+  @Field var center: UnitPoint?
+  @Field var startRadius: CGFloat?
+  @Field var endRadius: CGFloat?
+
+  func body(content: Content) -> some View {
+    switch styleType {
+    case .color:
+      if let color {
+        content.foregroundStyle(color)
+      } else {
+        content
+      }
+    case .hierarchical:
+      switch hierarchicalStyle {
+      case .primary:
+        content.foregroundStyle(.primary)
+      case .secondary:
+        content.foregroundStyle(.secondary)
+      case .tertiary:
+        content.foregroundStyle(.tertiary)
+      case .quaternary:
+        content.foregroundStyle(.quaternary)
+      case .quinary:
+        if #available(iOS 16.0, tvOS 17.0, *) {
+          content.foregroundStyle(.quinary)
+        } else {
+          content.foregroundStyle(.quaternary)
+        }
+      }
+    case .linearGradient:
+      if let colors, let startPoint, let endPoint {
+        content.foregroundStyle(
+          LinearGradient(
+            colors: colors,
+            startPoint: startPoint,
+            endPoint: endPoint
+          )
+        )
+      } else {
+        content
+      }
+    case .radialGradient:
+      if let colors, let center, let startRadius, let endRadius {
+        content.foregroundStyle(
+          RadialGradient(
+            colors: colors,
+            center: center,
+            startRadius: startRadius,
+            endRadius: endRadius
+          )
+        )
+      } else {
+        content
+      }
+    case .angularGradient:
+      if let colors, let center {
+        content.foregroundStyle(
+          AngularGradient(
+            colors: colors,
+            center: center
+          )
+        )
+      } else {
+        content
+      }
+    }
+  }
+}
+
 internal struct TintModifier: ViewModifier, Record {
   @Field var color: Color?
 
@@ -155,6 +247,14 @@ internal struct HiddenModifier: ViewModifier, Record {
     } else {
       content
     }
+  }
+}
+
+internal struct DisabledModifier: ViewModifier, Record {
+  @Field var disabled: Bool = true
+
+  func body(content: Content) -> some View {
+    content.disabled(disabled)
   }
 }
 
@@ -392,6 +492,40 @@ internal struct BackgroundOverlayModifier: ViewModifier, Record {
       content.background(color, alignment: alignment.toAlignment())
     } else {
       content
+    }
+  }
+}
+
+internal struct FixedSizeModifier: ViewModifier, Record {
+  @Field var horizontal: Bool?
+  @Field var vertical: Bool?
+
+  func body(content: Content) -> some View {
+    if let horizontal, let vertical {
+      content.fixedSize(horizontal: horizontal, vertical: vertical)
+    } else if let horizontal {
+      content.fixedSize(horizontal: horizontal, vertical: false)
+    } else if let vertical {
+      content.fixedSize(horizontal: false, vertical: vertical)
+    } else {
+      content.fixedSize()
+    }
+  }
+}
+
+internal struct IgnoreSafeAreaModifier: ViewModifier, Record {
+  @Field var regions: SafeAreaRegionOptions?
+  @Field var edges: EdgeOptions?
+
+  func body(content: Content) -> some View {
+    if let regions, let edges {
+      content.ignoresSafeArea(regions.toSafeAreaRegions(), edges: edges.toEdge())
+    } else if let regions {
+      content.ignoresSafeArea(regions.toSafeAreaRegions())
+    } else if let edges {
+      content.ignoresSafeArea(edges: edges.toEdge())
+    } else {
+      content.ignoresSafeArea()
     }
   }
 }
@@ -671,6 +805,80 @@ internal class ViewModifierRegistry {
   }
 }
 
+internal struct MatchedGeometryEffectModifier: ViewModifier, Record {
+  @Field var id: String?
+  @Field var namespaceId: String?
+
+  func body(content: Content) -> some View {
+    if let namespaceId, let namespace = NamespaceRegistry.shared.namespace(forKey: namespaceId) {
+      content.matchedGeometryEffect(id: id, in: namespace)
+    } else {
+      content
+    }
+  }
+}
+
+internal struct ContainerShapeModifier: ViewModifier, Record {
+  @Field var cornerRadius: CGFloat = 0
+
+  func body(content: Content) -> some View {
+    content.containerShape(.rect(cornerRadius: cornerRadius))
+  }
+}
+
+internal enum ButtonStyle: String, Enumerable {
+  case automatic
+  case bordered
+  case borderedProminent
+  case borderless
+  case glass
+  case glassProminent
+  case plain
+}
+
+internal struct ButtonStyleModifier: ViewModifier, Record {
+  @Field var style: ButtonStyle = .automatic
+
+  func body(content: Content) -> some View {
+    switch style {
+    case .bordered:
+      content.buttonStyle(.bordered)
+    case .borderedProminent:
+      content.buttonStyle(.borderedProminent)
+    case .borderless:
+      if #available(iOS 13.0, macOS 10.15, tvOS 17.0, *) {
+        content.buttonStyle(.borderless)
+      } else {
+        content.buttonStyle(.automatic)
+      }
+    case .glass:
+      if #available(iOS 26.0, macOS 26.0, tvOS 26.0, *) {
+        #if compiler(>=6.2) // Xcode 26
+        content.buttonStyle(.glass)
+        #else
+        content.buttonStyle(.automatic)
+        #endif
+      } else {
+        content.buttonStyle(.automatic)
+      }
+    case .glassProminent:
+      if #available(iOS 26.0, macOS 26.0, tvOS 26.0, *) {
+        #if compiler(>=6.2) // Xcode 26
+        content.buttonStyle(.glassProminent)
+        #else
+        content.buttonStyle(.automatic)
+        #endif
+      } else {
+        content.buttonStyle(.automatic)
+      }
+    case .plain:
+      content.buttonStyle(.plain)
+    default:
+      content.buttonStyle(.automatic)
+    }
+  }
+}
+
 // MARK: - Built-in Modifier Registration
 
 // swiftlint:disable:next no_grouping_extension
@@ -716,12 +924,20 @@ extension ViewModifierRegistry {
       return try ForegroundColorModifier(from: params, appContext: appContext)
     }
 
+    register("foregroundStyle") { params, appContext, _ in
+      return try ForegroundStyleModifier(from: params, appContext: appContext)
+    }
+
     register("tint") { params, appContext, _ in
       return try TintModifier(from: params, appContext: appContext)
     }
 
     register("hidden") { params, appContext, _ in
       return try HiddenModifier(from: params, appContext: appContext)
+    }
+
+    register("disabled") { params, appContext, _ in
+      return try DisabledModifier(from: params, appContext: appContext)
     }
 
     register("zIndex") { params, appContext, _ in
@@ -818,6 +1034,26 @@ extension ViewModifierRegistry {
 
     register("glassEffectId") { params, appContext, _ in
       return try GlassEffectIdModifier.init(from: params, appContext: appContext)
+    }
+
+    register("matchedGeometryEffect") { params, appContext, _ in
+      return try MatchedGeometryEffectModifier.init(from: params, appContext: appContext)
+    }
+
+    register("fixedSize") { params, appContext, _ in
+      return try FixedSizeModifier(from: params, appContext: appContext)
+    }
+
+    register("ignoreSafeArea") { params, appContext, _ in
+      return try IgnoreSafeAreaModifier(from: params, appContext: appContext)
+    }
+
+    register("containerShape") { params, appContext, _ in
+      return try ContainerShapeModifier(from: params, appContext: appContext)
+    }
+
+    register("buttonStyle") { params, appContext, _ in
+      return try ButtonStyleModifier(from: params, appContext: appContext)
     }
   }
 }

@@ -4,11 +4,84 @@
 
 ### 🛠 Breaking changes
 
+- [iOS] Remove EXAppDelegateWrapper class ([#39778](https://github.com/expo/expo/pull/39778) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
 ### 🎉 New features
+
+- Remove `ExpoAppDelegate` inheritance requirement in ExpoReactNativeFactory ([#39417](https://github.com/expo/expo/pull/39417) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- [iOS] Remove bindReactNativeFactory function ([#39418](https://github.com/expo/expo/pull/39418) by [@gabrieldonadel](https://github.com/gabrieldonadel))
 
 ### 🐛 Bug fixes
 
 ### 💡 Others
+
+- [android] Add getDefaultReactHost to ExpoReactHostFactory ([#40086](https://github.com/expo/expo/pull/40086) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+### ⚠️ Notices
+
+- Added support for React Native 0.82.x. ([#39678](https://github.com/expo/expo/pull/39678) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+## 54.0.10 - 2025-09-22
+
+### 💡 Others
+
+- Updated `expo/tsconfig.base` to resolve `exclude` paths relative to the extending tsconfig ([#39816](https://github.com/expo/expo/pull/39816) by [@kraenhansen](https://github.com/kraenhansen))
+
+## 54.0.9 - 2025-09-18
+
+### 🐛 Bug fixes
+
+- Bump to `@expo/metro@~54.0.0` fixing `metro-runtime` resolution error when `unstable_enablePackageExports` is forcefully disabled ([#39800](https://github.com/expo/expo/pull/39800) by [@kitten](https://github.com/kitten))
+
+## 54.0.8 — 2025-09-16
+
+### 🐛 Bug fixes
+
+- Remove overlapping properties that were defined upstream from `react-native-web.d.ts` ([#39710](https://github.com/expo/expo/pull/39710) by [@kitten](https://github.com/kitten))
+
+## 54.0.7 — 2025-09-13
+
+_This version does not introduce any user-facing changes._
+
+## 54.0.6 — 2025-09-13
+
+_This version does not introduce any user-facing changes._
+
+## 54.0.5 — 2025-09-12
+
+### 🐛 Bug fixes
+
+- Use `$$EXPO_INITIAL_PROPS` to determine if running inside a dom component. ([#39590](https://github.com/expo/expo/pull/39590) by [@EvanBacon](https://github.com/EvanBacon))
+
+## 54.0.4 — 2025-09-12
+
+_This version does not introduce any user-facing changes._
+
+## 54.0.3 — 2025-09-12
+
+### 🛠 Breaking changes
+
+- [iOS] appended removal info (SDK-55) to the deprecation message of the `EXAppDelegateWrapper` interface. ([#39574](https://github.com/expo/expo/pull/39574) by [@chrfalch](https://github.com/chrfalch))
+
+## 54.0.2 — 2025-09-11
+
+_This version does not introduce any user-facing changes._
+
+## 54.0.1 — 2025-09-10
+
+_This version does not introduce any user-facing changes._
+
+## 54.0.0 — 2025-09-10
+
+### 💡 Others
+
+- Replace public constructor argument syntax in `async-require/errors` ([#39496](https://github.com/expo/expo/pull/39496) by [@kitten](https://github.com/kitten))
+
+## 54.0.0-preview.16 — 2025-09-08
+
+### 🐛 Bug fixes
+
+- [Android] allow `expo/fetch` sending a `POST`, `PATCH` or `PUT` request without a body. ([#39363](https://github.com/expo/expo/pull/39363) by [@julian-dueck](https://github.com/julian-dueck))
 
 ## 54.0.0-preview.15 — 2025-09-04
 

@@ -10,6 +10,34 @@
 
 ### 💡 Others
 
+- Improve local mock lookup. ([#39743](https://github.com/expo/expo/pull/39743) by [@aleqsio](https://github.com/aleqsio))
+
+### ⚠️ Notices
+
+- Added support for React Native 0.82.x. ([#39678](https://github.com/expo/expo/pull/39678) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+## 54.0.12 - 2025-09-18
+
+### 🐛 Bug fixes
+
+- Simplify `transformIgnorePatterns` to avoid unnecessary transforms and remove legacy packages. ([#39807](https://github.com/expo/expo/pull/39807) by [@byCedric](https://github.com/byCedric))
+
+## 54.0.11 — 2025-09-12
+
+### 🐛 Bug fixes
+
+- Add missing trailing `/` to `transformIgnorePatterns` resolving pnpm isolated modules paths. ([#39605](https://github.com/expo/expo/pull/39605) by [@byCedric](https://github.com/byCedric))
+
+## 54.0.10 — 2025-09-10
+
+_This version does not introduce any user-facing changes._
+
+## 54.0.9 — 2025-09-10
+
+### 💡 Others
+
+- Remove dependency on `find-up` ([#39470](https://github.com/expo/expo/pull/39470) by [@kitten](https://github.com/kitten))
+
 ## 54.0.8 — 2025-09-04
 
 ### 💡 Others

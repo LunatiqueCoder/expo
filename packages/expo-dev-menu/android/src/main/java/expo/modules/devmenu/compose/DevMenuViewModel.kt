@@ -9,7 +9,8 @@ class DevMenuViewModel : ViewModel() {
   private val menuPreferences = DevMenuPreferencesHandle
   private val _state = mutableStateOf(
     DevMenuState(
-      devToolsSettings = DevMenuManager.getDevSettings()
+      devToolsSettings = DevMenuManager.getDevSettings(),
+      customItems = mapCallbacks(DevMenuManager.registeredCallbacks)
     )
   )
 
@@ -38,6 +39,10 @@ class DevMenuViewModel : ViewModel() {
     )
   }
 
+  fun updateCustomItems(callbacks: List<DevMenuManager.Callback>) {
+    _state.value = _state.value.copy(customItems = mapCallbacks(callbacks))
+  }
+
   private fun closeMenu() {
     _state.value = _state.value.copy(isOpen = false)
   }
@@ -60,12 +65,23 @@ class DevMenuViewModel : ViewModel() {
       DevMenuAction.OpenJSDebugger -> openJSInspector()
       DevMenuAction.OpenReactNativeDevMenu -> getReactHost()?.devSupportManager?.showDevOptionsDialog()
       DevMenuAction.ToggleElementInspector -> toggleInspector()
-      is DevMenuAction.ToggleFastRefresh -> toggleFastRefresh()
+      is DevMenuAction.ToggleFastRefresh -> {
+        toggleFastRefresh()
+        _state.value = _state.value.copy(devToolsSettings = DevMenuManager.getDevSettings())
+      }
       is DevMenuAction.ToggleFab -> toggleFab()
       DevMenuAction.FinishOnboarding -> {
         DevMenuManager.getSettings()?.isOnboardingFinished = true
         _state.value = _state.value.copy(isOnboardingFinished = true)
       }
+      is DevMenuAction.TriggerCustomCallback -> {
+        sendEventToDelegateBridge("registeredCallbackFired", action.name)
+      }
     }
+  }
+
+  companion object {
+    private fun mapCallbacks(callbacks: List<DevMenuManager.Callback>) =
+      callbacks.map { DevMenuState.CustomItem(name = it.name, shouldCollapse = it.shouldCollapse) }
   }
 }

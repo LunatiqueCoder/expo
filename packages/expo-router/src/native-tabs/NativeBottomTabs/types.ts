@@ -55,9 +55,9 @@ export interface NativeTabOptions extends DefaultRouterOptions {
    * System-provided tab bar item with predefined icon and title
    *
    * Uses Apple's built-in tab bar items (e.g., bookmarks, contacts, downloads) with
-   * standard iOS styling and localized titles. Custom `icon` or `selectedIcon`
-   * properties will override the system icon, but the system-defined title cannot
-   * be customized.
+   * standard iOS styling and localized titles. If you override the `title`,
+   * `icon`, or `selectedIcon`, note that this is not officially supported
+   * by Apple and may lead to unexpected results.
    *
    * @see {@link https://developer.apple.com/documentation/uikit/uitabbaritem/systemitem|UITabBarItem.SystemItem}
    * @platform ios
@@ -92,6 +92,14 @@ export interface NativeTabOptions extends DefaultRouterOptions {
    * @platform iOS
    */
   blurEffect?: NativeTabsBlurEffect;
+  /**
+   * The color of the shadow when the tab is selected.
+   *
+   * @see [Apple documentation](https://developer.apple.com/documentation/uikit/uibarappearance/shadowcolor)
+   *
+   * @platform iOS
+   */
+  shadowColor?: ColorValue;
   /**
    * The color of the icon when the tab is selected.
    *
@@ -148,7 +156,7 @@ export type SymbolOrImageSource =
       /**
        * The image source to use as an icon.
        */
-      src?: ImageSourcePropType | Promise<ImageSourcePropType>;
+      src?: ImageSourcePropType | Promise<ImageSourcePropType | null>;
     };
 
 export interface ExtendedNativeTabOptions extends NativeTabOptions {
@@ -295,6 +303,14 @@ export interface NativeTabsProps extends PropsWithChildren {
    */
   blurEffect?: NativeTabsBlurEffect;
   /**
+   * The color of the shadow.
+   *
+   * @see [Apple documentation](https://developer.apple.com/documentation/uikit/uibarappearance/shadowcolor)
+   *
+   * @platform iOS
+   */
+  shadowColor?: ColorValue;
+  /**
    * @see [Apple documentation](https://developer.apple.com/documentation/uikit/uitabbaritem/titlepositionadjustment)
    *
    * @platform iOS
@@ -407,6 +423,8 @@ export interface NativeTabTriggerProps {
   name?: string;
   /**
    * If true, the tab will be hidden from the tab bar.
+   *
+   * > **Note**: Marking a tab as `hidden` means it cannot be navigated to in any way.
    */
   hidden?: boolean;
   /**
@@ -497,6 +515,14 @@ export interface NativeTabsTriggerTabBarProps {
    * @platform iOS
    */
   blurEffect?: NativeTabsBlurEffect;
+  /**
+   * The color of the shadow when the tab is selected.
+   *
+   * @see [Apple documentation](https://developer.apple.com/documentation/uikit/uibarappearance/shadowcolor)
+   *
+   * @platform iOS
+   */
+  shadowColor?: ColorValue;
   /**
    * When set to `true`, the tab bar will not become transparent when scrolled to the edge.
    *

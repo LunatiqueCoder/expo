@@ -56,6 +56,9 @@ struct SettingsTabView: View {
       .padding()
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    #if os(tvOS)
+    .background()
+    #endif
     .navigationBarHidden(true)
   }
 
@@ -149,7 +152,7 @@ struct SettingsTabView: View {
       Spacer()
       Image(systemName: "clipboard")
         .resizable()
-        .aspectRatio(contentMode: .fit)
+        .scaledToFit()
         .frame(width: 16, height: 16)
         .foregroundColor(.blue)
 #endif

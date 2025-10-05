@@ -10,6 +10,55 @@
 
 ### 💡 Others
 
+## 54.0.5 - 2025-09-22
+
+### 🐛 Bug fixes
+
+- Prevent fast refresh on generated type declarations changes ([#39835](https://github.com/expo/expo/pull/39835) by [@krystofwoldrich](https://github.com/krystofwoldrich))
+
+## 54.0.4 - 2025-09-18
+
+### 💡 Others
+
+- Bump to `@expo/metro@~54.0.0` ([#39800](https://github.com/expo/expo/pull/39800) by [@kitten](https://github.com/kitten))
+- Rename to `@expo/server` to `expo-server` ([#40087](https://github.com/expo/expo/pull/40087) by [@kitten](https://github.com/kitten))
+
+## 54.0.3 — 2025-09-12
+
+### 💡 Others
+
+- Add fallback resolution for `@expo/metro-runtime` pre-module ([#39603](https://github.com/expo/expo/pull/39603) by [@kitten](https://github.com/kitten))
+
+## 54.0.2 — 2025-09-11
+
+### 🛠 Breaking changes
+
+- Increase strictness of namespace imports ([#39545](https://github.com/expo/expo/pull/39545) by [@kitten](https://github.com/kitten))
+
+## 54.0.1 — 2025-09-10
+
+### 🐛 Bug fixes
+
+- Add worklets version to transform key ([#39541](https://github.com/expo/expo/pull/39541) by [@brentvatne](https://github.com/brentvatne))
+
+## 54.0.0 — 2025-09-10
+
+### 🎉 New features
+
+- Updated `lightningcss` to `^1.30.1` ([#39506](https://github.com/expo/expo/pull/39506) by [@marklawlor](https://github.com/marklawlor))
+
+### 🐛 Bug fixes
+
+- Collapse `InternalBytecode.js` stack frames ([#39490](https://github.com/expo/expo/pull/39490) by [@kitten](https://github.com/kitten))
+
+## 0.21.11 — 2025-09-08
+
+### 🐛 Bug fixes
+
+- Collapse `unknown` and `<anonymous>` stack frames ([#39407](https://github.com/expo/expo/pull/39407) by [@kitten](https://github.com/kitten))
+- Prevent unclear errors from being thrown when loading config ([#39384](https://github.com/expo/expo/pull/39384) by [@kitten](https://github.com/kitten))
+- Fix expansion of `ExportAllDeclaration` during tree-shaking not ignoring `default` export specifier and duplicating existing specifiers ([#39420](https://github.com/expo/expo/pull/39420) by [@kitten](https://github.com/kitten))
+
 ## 0.21.10 — 2025-09-04
 
 ### 🐛 Bug fixes

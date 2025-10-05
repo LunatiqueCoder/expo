@@ -6,9 +6,77 @@
 
 ### 🎉 New features
 
+- [iOS] Add ref methods and onChangeFocus to TextField and SecureField. ([#39898](https://github.com/expo/expo/pull/39898) by [@aleqsio](https://github.com/aleqsio))
+- [iOS] Adds `controlSize` prop to Button([#40030](https://github.com/expo/expo/pull/40030) by [@betomoedano](https://github.com/betomoedano))
+- [iOS] Add SF symbol typings ([#39802](https://github.com/expo/expo/pull/39802) by [@nishan](https://github.com/intergalacticspacehighway))
+
 ### 🐛 Bug fixes
 
+- [iOS] Add `buttonStyle` modifier. ([#40119](https://github.com/expo/expo/pull/40119) by [@nishan](https://github.com/intergalacticspacehighway))
+
 ### 💡 Others
+
+## 0.2.0-beta.5 - 2025-10-01
+
+### 🎉 New features
+
+- [iOS] Add `variableValue` prop to Image component for SF Symbols with variable color support ([#39852](https://github.com/expo/expo/pull/39852) by [@morellodev](https://github.com/morellodev))
+- [iOS] Adds `Rectangle`, `RoundedRectangle`, `UnevenRoundedRectangle`, `Circle`, `Ellipse`, `Capsule` shape components and `fill` modifier ([#39793](https://github.com/expo/expo/pull/39793) by [@nishan](https://github.com/intergalacticspacehighway)) ([#39793](https://github.com/expo/expo/pull/39793) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+- [iOS] Add `ignoreSafeArea` modifier ([#39804](https://github.com/expo/expo/pull/39804) by [@nishan](https://github.com/intergalacticspacehighway)) ([#39804](https://github.com/expo/expo/pull/39804) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+- [iOS] Add `presentationDetents`, `presentationDragIndicator`, `interactiveDismissDisabled` props to `BottomSheet`. ([#39952](https://github.com/expo/expo/pull/39952) by [@nishan](https://github.com/intergalacticspacehighway)) ([#39952](https://github.com/expo/expo/pull/39952) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+- [iOS] Add `ConcentricRectangle` shape ([#39907](https://github.com/expo/expo/pull/39907) by [@nishan](https://github.com/intergalacticspacehighway)) ([#39907](https://github.com/expo/expo/pull/39907) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+- [iOS] Add disabled modifier for swiftui. ([#39864](https://github.com/expo/expo/pull/39864) by [@hryhoriiK97](https://github.com/hryhoriiK97))
+- Add Interpolated string support in button ([#39932](https://github.com/expo/expo/pull/39932) by [@nishan](https://github.com/intergalacticspacehighway)) ([#39932](https://github.com/expo/expo/pull/39932) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+
+### 🐛 Bug fixes
+
+- [Android] Fix DateTimePicker crashes. ([#39718](https://github.com/expo/expo/pull/39718) by [@hryhoriiK97](https://github.com/hryhoriiK97))
+
+### 💡 Others
+
+- [ios] - Set host dimension synchronously on native ([#40017](https://github.com/expo/expo/pull/40017) by [@nishan](https://github.com/intergalacticspacehighway)) ([#40017](https://github.com/expo/expo/pull/40017) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+
+## 0.2.0-beta.4 - 2025-09-22
+
+### 🐛 Bug fixes
+
+- [iOS] Updated description for glass button styles availability ([#39736](https://github.com/expo/expo/pull/39736) by [@terijaki](https://github.com/terijaki))
+
+## 0.2.0-beta.3 — 2025-09-16
+
+### 🎉 New features
+
+- [iOS] Add `LabeledContent` view ([#39463](https://github.com/expo/expo/pull/39617) by [@betomoedano](https://github.com/betomoedano))
+- [iOS] Add `fixedSize` modifier. ([#39734](https://github.com/expo/expo/pull/39734) by [@nishan](https://github.com/intergalacticspacehighway))
+
+### 🐛 Bug fixes
+
+- [ios] tvOS 26 compile fix and card button. ([#39639](https://github.com/expo/expo/pull/39639) by [@douglowder](https://github.com/douglowder))
+
+### 💡 Others
+
+- [Android] **Button**: Deprecate `systemImage` prop in favor of `leadingIcon` and `trailingIcon` for more flexible icon placement. The `systemImage` prop will continue to work as `leadingIcon` for backward compatibility. ([#39095](https://github.com/expo/expo/pull/39095) by [@benjaminkomen](https://github.com/benjaminkomen))
+
+## 0.2.0-beta.2 — 2025-09-12
+
+_This version does not introduce any user-facing changes._
+
+## 0.2.0-beta.1 — 2025-09-11
+
+### 🐛 Bug fixes
+
+- [iOS] Fix tvOS compilation. ([#39542](https://github.com/expo/expo/pull/39542) by [@douglowder](https://github.com/douglowder))
+
+## 0.2.0-beta.0 — 2025-09-10
+
+### 🎉 New features
+
+- [iOS] Add `foregroundStyle` modifier, deprecated `foregroundColor` ([#39183](https://github.com/expo/expo/pull/39183) by [@hirbod](https://github.com/hirbod))
+- [iOS] Add `matchedGeometryEffect` modifier and `ZStack` ([#39463](https://github.com/expo/expo/pull/39463) by [@nishan](https://github.com/intergalacticspacehighway))
+
+### 💡 Others
+
+- Use typescript files as source and add `packages:exports`. ([#39377](https://github.com/expo/expo/pull/39377) by [@kudo](https://github.com/kudo))
 
 ## 0.2.0-alpha.9 — 2025-09-03
 
@@ -62,6 +130,7 @@ _This version does not introduce any user-facing changes._
 
 - [Android] Add compose modifier support. ([#38630](https://github.com/expo/expo/pull/38630) by [@aleqsio](https://github.com/aleqsio))
 - [iOS] Add `glassEffect` modifier. ([#38876](https://github.com/expo/expo/pull/38876) by [@nishan](https://github.com/intergalacticspacehighway))
+- [Android] Add Chip component for Android. ([#39094](https://github.com/expo/expo/pull/39094) by [@hryhoriiK97](https://github.com/hryhoriiK97))
 
 ## 0.2.0-alpha.0 — 2025-08-13
 

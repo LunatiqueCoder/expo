@@ -6,9 +6,42 @@
 
 ### 🎉 New features
 
+- Remove `ExpoAppDelegate` inheritance requirement ([#39417](https://github.com/expo/expo/pull/39417) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
 ### 🐛 Bug fixes
 
 ### 💡 Others
+
+- [Android] Migrated from `kotlinOptions` to `compilerOptions` DSL. ([#39794](https://github.com/expo/expo/pull/39794) by [@huextrat](https://github.com/huextrat))
+- [android] Make reactNativeHost optional in ReactHostWrapper ([#40085](https://github.com/expo/expo/pull/40085) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- [Android] Prevented the app from crashing during the initialization of the `ErrorViewModel`. ([#40148](https://github.com/expo/expo/pull/40148) by [@lukmccall](https://github.com/lukmccall))
+
+## 6.0.13 - 2025-10-01
+
+### 🐛 Bug fixes
+
+- [iOS] Adjust tvOS colors. ([#40006](https://github.com/expo/expo/pull/40006) by [@douglowder](https://github.com/douglowder))
+
+## 6.0.12 - 2025-09-22
+
+### 🎉 New features
+
+- [Android] Adds loading state when connecting to a development server. ([#39873](https://github.com/expo/expo/pull/39873) by [@lukmccall](https://github.com/lukmccall))
+
+### 🐛 Bug fixes
+
+- [expo-dev-launcher] Fix manual URL entry: decode percent-encoded URLs, enable return key submit, and support dark mode text. ([#39840](https://github.com/expo/expo/pull/39840) by [@blazejkustra](https://github.com/blazejkustra))
+
+## 6.0.11 — 2025-09-11
+
+### 🐛 Bug fixes
+
+- [Android] Fix incorrect text color in the error dialog. ([#39550](https://github.com/expo/expo/pull/39550) by [@lukmccall](https://github.com/lukmccall))
+- [iOS] Fix UI on iPad. ([#39549](https://github.com/expo/expo/pull/39549) by [@alanjhughes](https://github.com/alanjhughes))
+
+## 6.0.10 — 2025-09-08
+
+_This version does not introduce any user-facing changes._
 
 ## 6.0.9 — 2025-09-03
 

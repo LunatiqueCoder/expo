@@ -235,6 +235,7 @@ object DevMenuManager : DevMenuManagerInterface, LifecycleEventListener {
     val currentReactInstance = currentReactInstance.get() ?: return
     val appInfo = AppInfo.getAppInfo(currentReactInstance)
     bindingView.viewModel.updateAppInfo(appInfo)
+    bindingView.viewModel.updateCustomItems(registeredCallbacks)
   }
 
   inline fun withBindingView(
@@ -366,9 +367,8 @@ object DevMenuManager : DevMenuManagerInterface, LifecycleEventListener {
   }
 
   fun toggleFab() {
-    preferences?.showFab?.let {
-      preferences?.showFab = !it
-    }
+    val current = preferences?.showFab ?: return
+    preferences?.showFab = !current
   }
 
   override fun setDelegate(newDelegate: DevMenuDelegateInterface) {
@@ -411,6 +411,14 @@ object DevMenuManager : DevMenuManagerInterface, LifecycleEventListener {
     val newReactInstance = requireNotNull(delegate).reactHost()
     if (newReactInstance != currentReactInstance.get()) {
       setUpReactInstance(newReactInstance)
+    }
+  }
+
+  fun refreshCustomItems() {
+    delegateActivity?.let { activity ->
+      withBindingView(activity) { bindingView ->
+        bindingView.viewModel.updateCustomItems(registeredCallbacks)
+      }
     }
   }
 //endregion

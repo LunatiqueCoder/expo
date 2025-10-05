@@ -6,9 +6,66 @@
 
 ### 🎉 New features
 
+- [Android] Adds support for `ArrayBuffer`. ([#39943](https://github.com/expo/expo/pull/39943) by [@lukmccall](https://github.com/lukmccall))
+- [iOS] Introduce ExpoAppDelegateSubscriberManager class ([#40008](https://github.com/expo/expo/pull/40008) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- [iOS] Add `AppContext` to views environment so it can be accessed if needed. ([#39207](https://github.com/expo/expo/pull/39207) by [@alanjhughes](https://github.com/alanjhughes))
+
 ### 🐛 Bug fixes
 
+- [iOS] Fix NSURL to JSIString conversion returning nil. ([#39567](https://github.com/expo/expo/pull/39567) by [@behenate](https://github.com/behenate))
+- Fix SharedObject created with `useReleasingSharedObject` getting destroyed after a fast refresh caused by a change in its dependencies. ([#39753](https://github.com/expo/expo/pull/39753) by [@behenate](https://github.com/behenate))
+- [Android] Restore `register` overload in `ModuleRegistry`. ([#40149](https://github.com/expo/expo/pull/40149) by [@alanjhughes](https://github.com/alanjhughes))
+
 ### 💡 Others
+
+- [Android] Migrated from `kotlinOptions` to `compilerOptions` DSL. ([#39794](https://github.com/expo/expo/pull/39794) by [@huextrat](https://github.com/huextrat))
+- [iOS] Add explicit CallInvoker and CallbackWrapper imports to EXJSIUtils ([#39818](https://github.com/expo/expo/pull/39818) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- [Android] Refactor getDelayLoadAppHandler to use ReactHost ([#40084](https://github.com/expo/expo/pull/40084) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- [Android] Use module name from `expo-module.config.json`. ([#39985](https://github.com/expo/expo/pull/39985) by [@jakex7](https://github.com/jakex7))
+
+## 3.0.19 - 2025-10-01
+
+### 💡 Others
+
+- [ios] - Set host dimension synchronously on native ([#40017](https://github.com/expo/expo/pull/40017) by [@nishan](https://github.com/intergalacticspacehighway)) ([#40017](https://github.com/expo/expo/pull/40017) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+
+## 3.0.18 - 2025-09-22
+
+### 🐛 Bug fixes
+
+- [iOS] Return EXJavaScriptValue from null/undefined in arrays. ([#39872](https://github.com/expo/expo/pull/39872) by [@jakex7](https://github.com/jakex7))
+
+## 3.0.17 - 2025-09-18
+
+_This version does not introduce any user-facing changes._
+
+## 3.0.16 — 2025-09-16
+
+### 🎉 New features
+
+- [Android] Starts using precompiled headers to improve build times. ([#39641](https://github.com/expo/expo/pull/39641) by [@lukmccall](https://github.com/lukmccall))
+- Remove `ExpoAppDelegate` inheritance requirement in ExpoReactNativeFactory ([#39417](https://github.com/expo/expo/pull/39417) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
+### 🐛 Bug fixes
+
+- Fix runtime error due to passing undefined into function that doesnt receive any argument ([#39594](https://github.com/expo/expo/pull/39594) by [@mrevanzak](https://github.com/mrevanzak))
+- Fix build error on Vite due to non-existent import for `TurboModuleRegistry` on web ([#39726](https://github.com/expo/expo/pull/39726) by [@satya164](https://github.com/satya164))
+
+## 3.0.15 — 2025-09-10
+
+### 🐛 Bug fixes
+
+- [Android] Fixes `JNI detected error in application: obj == null` in `ExpoModulesHostObject::get`. ([#39523](https://github.com/expo/expo/pull/39523) by [@lukmccall](https://github.com/lukmccall))
+
+## 3.0.14 — 2025-09-08
+
+### 🐛 Bug fixes
+
+- [Android] Fix type check in the `SharedRef` converter. ([#39446](https://github.com/expo/expo/pull/39446) by [@lukmccall](https://github.com/lukmccall))
+
+### 💡 Others
+
+- improve startup performance by not relying on kotlin reflection. ([#39389](https://github.com/expo/expo/pull/39389) by [@ACHP](https://github.com/ACHP))
 
 ## 3.0.13 — 2025-09-04
 
@@ -21,6 +78,8 @@
 ### 💡 Others
 
 - Use new LongLivedObject.h and CallbackWrapper.h headers namespace ([#39344](https://github.com/expo/expo/pull/39344) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+- [iOS] Added `Color` convertible support without passing `AppContext`. ([#39183](https://github.com/expo/expo/pull/39183) by [@aleqsio](https://github.com/aleqsio))
+- Extracted the read permission check from `FileSystemUtilities` ([#39210](https://github.com/expo/expo/pull/39210) by [@kosmydel](https://github.com/kosmydel))
 
 ## 3.0.11 — 2025-09-02
 

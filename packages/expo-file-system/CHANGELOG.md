@@ -10,6 +10,51 @@
 
 ### 💡 Others
 
+## 19.0.16 - 2025-10-01
+
+### 🎉 New features
+
+- Add write options for base64 encoded bytes. ([#39963](https://github.com/expo/expo/pull/39963) by [@aleqsio](https://github.com/aleqsio))
+
+### 🐛 Bug fixes
+
+- Fix typedoc in the File class. ([#40064](https://github.com/expo/expo/pull/40064) by [@aleqsio](https://github.com/aleqsio))
+- [Android] Fix getContentUri. ([#40001](https://github.com/expo/expo/pull/40001) by [@aleqsio](https://github.com/aleqsio))
+
+## 19.0.15 - 2025-09-22
+
+### 🎉 New features
+
+- add `idempotent` option to `downloadFileAsync` ([#39681](https://github.com/expo/expo/pull/39681) by [@vonovak](https://github.com/vonovak))
+
+## 19.0.14 — 2025-09-13
+
+_This version does not introduce any user-facing changes._
+
+## 19.0.13 — 2025-09-12
+
+### 🐛 Bug fixes
+
+- [Android] Fix incorrect AndroidManifest.xml location. ([#39134](https://github.com/expo/expo/pull/39134) by [@robertying](https://github.com/robertying))
+
+## 19.0.12 — 2025-09-11
+
+_This version does not introduce any user-facing changes._
+
+## 19.0.11 — 2025-09-10
+
+### 🎉 New features
+
+- [iOS] Add `pickDirectoryAsync` support ([#39210](https://github.com/expo/expo/pull/39210) by [@kosmydel](https://github.com/kosmydel))
+
+### 🐛 Bug fixes
+
+- Add minimal web stub to fix broken imports on web ([#39400](https://github.com/expo/expo/pull/39400) by [@LeonDvlpmnt](https://github.com/LeonDvlpmnt))
+
+## 19.0.10 — 2025-09-08
+
+_This version does not introduce any user-facing changes._
+
 ## 19.0.9 — 2025-09-03
 
 ### 🎉 New features
