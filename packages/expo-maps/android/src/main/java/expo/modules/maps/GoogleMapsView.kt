@@ -332,21 +332,28 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
       }
     }
 
-    LaunchedEffect(cameraState.position) {
+    LaunchedEffect(cameraState.isMoving) {
       // We don't want to send the event when the map is not loaded yet
       if (!wasLoaded.value) {
         return@LaunchedEffect
       }
 
-      val position = cameraState.position
-      onCameraMove(
-        CameraMoveEvent(
-          Coordinates(position.target.latitude, position.target.longitude),
-          position.zoom,
-          position.tilt,
-          position.bearing
-        )
-      )
+      if (!cameraState.isMoving && cameraState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE || 
+          cameraState.cameraMoveStartedReason == CameraMoveStartedReason.DEVELOPER_ANIMATION) {
+
+        if (cameraState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE || 
+            cameraState.cameraMoveStartedReason == CameraMoveStartedReason.DEVELOPER_ANIMATION) {
+          val position = cameraState.position
+          onCameraMove(
+            CameraMoveEvent(
+              Coordinates(position.target.latitude, position.target.longitude),
+              position.zoom,
+              position.tilt,
+              position.bearing
+            )
+          )
+        }
+      }
     }
     return cameraState
   }
