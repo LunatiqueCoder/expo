@@ -71,6 +71,15 @@ data class MarkerRecord(
   val snippet: String = "",
 
   @Field
+  val text: String? = null,
+
+  @Field
+  val backgroundColor: Int? = null,
+
+  @Field
+  val textColor: Int? = null,
+
+  @Field
   val draggable: Boolean = false,
 
   @Field

@@ -15,7 +15,7 @@ function useNativeEvent(userHandler) {
 /**
  * @platform ios
  */
-export const AppleMapsView = React.forwardRef(({ onMapClick, onMarkerClick, onCameraMove, onPolylineClick, onCircleClick, onPolygonClick, annotations, polylines, circles, polygons, ...props }, ref) => {
+export const AppleMapsView = React.forwardRef(({ onMapClick, onMarkerClick, onCameraMove, onPolylineClick, onCircleClick, onPolygonClick, onAnnotationClick, annotations, polylines, circles, polygons, ...props }, ref) => {
     const nativeRef = React.useRef(null);
     React.useImperativeHandle(ref, () => ({
         setCameraPosition(config) {
@@ -31,6 +31,7 @@ export const AppleMapsView = React.forwardRef(({ onMapClick, onMarkerClick, onCa
     const onNativePolylineClick = useNativeEvent(onPolylineClick);
     const onNativePolygonClick = useNativeEvent(onPolygonClick);
     const onNativeCircleClick = useNativeEvent(onCircleClick);
+    const onNativeAnnotationClick = useNativeEvent(onAnnotationClick);
     const parsedPolylines = polylines?.map((polyline) => ({
         ...polyline,
         color: processColor(polyline.color) ?? undefined,
@@ -53,6 +54,6 @@ export const AppleMapsView = React.forwardRef(({ onMapClick, onMarkerClick, onCa
     if (!NativeView) {
         return null;
     }
-    return (<NativeView {...props} ref={nativeRef} polylines={parsedPolylines} polygons={parsedPolygons} circles={parsedCircles} annotations={parsedAnnotations} onMapClick={onNativeMapClick} onMarkerClick={onNativeMarkerClick} onCameraMove={onNativeCameraMove} onPolylineClick={onNativePolylineClick} onPolygonClick={onNativePolygonClick} onCircleClick={onNativeCircleClick}/>);
+    return (<NativeView {...props} ref={nativeRef} polylines={parsedPolylines} polygons={parsedPolygons} circles={parsedCircles} annotations={parsedAnnotations} onMapClick={onNativeMapClick} onMarkerClick={onNativeMarkerClick} onCameraMove={onNativeCameraMove} onPolylineClick={onNativePolylineClick} onPolygonClick={onNativePolygonClick} onCircleClick={onNativeCircleClick} onAnnotationClick={onNativeAnnotationClick}/>);
 });
 //# sourceMappingURL=AppleMapsView.js.map

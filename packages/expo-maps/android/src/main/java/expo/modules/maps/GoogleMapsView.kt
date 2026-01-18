@@ -5,9 +5,16 @@ package expo.modules.maps
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -17,6 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import android.view.MotionEvent
+import android.view.ViewGroup
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -65,6 +75,105 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
   override val props = GoogleMapsViewProps()
 
   private val onMapLoaded by EventDispatcher<Unit>()
+  
+  // Track gesture state to manage parent scroll blocking
+  private var isMapInteracting = false
+
+  init {
+    // More aggressive touch handling to prevent parent scroll interference
+    isClickable = true
+    isFocusable = true
+  }
+
+  override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+    // Block parent from intercepting any touch events on the map
+    ev?.let { event ->
+      when (event.action and MotionEvent.ACTION_MASK) {
+        MotionEvent.ACTION_DOWN -> {
+          // Aggressively block parent interception
+          requestDisallowInterceptTouchEvent(true)
+          findScrollableParent()?.requestDisallowInterceptTouchEvent(true)
+          isMapInteracting = true
+        }
+        MotionEvent.ACTION_POINTER_DOWN -> {
+          // Multi-touch (pinch) - definitely block parent
+          requestDisallowInterceptTouchEvent(true)
+          findScrollableParent()?.requestDisallowInterceptTouchEvent(true)
+          isMapInteracting = true
+        }
+        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+          // Re-enable parent scrolling
+          requestDisallowInterceptTouchEvent(false)
+          findScrollableParent()?.requestDisallowInterceptTouchEvent(false)
+          isMapInteracting = false
+        }
+      }
+    }
+    return false // Don't intercept, let map handle it
+  }
+
+  override fun onTouchEvent(event: MotionEvent?): Boolean {
+    // Consume touch events and ensure parent doesn't interfere
+    event?.let { ev ->
+      when (ev.action and MotionEvent.ACTION_MASK) {
+        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+          // Block all parent views from intercepting
+          var currentParent = parent
+          while (currentParent != null) {
+            currentParent.requestDisallowInterceptTouchEvent(true)
+            currentParent = currentParent.parent
+          }
+        }
+        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+          // Re-enable parent interception
+          var currentParent = parent
+          while (currentParent != null) {
+            currentParent.requestDisallowInterceptTouchEvent(false)
+            currentParent = currentParent.parent
+          }
+        }
+      }
+    }
+    
+    return super.onTouchEvent(event)
+  }
+
+  private fun findScrollableParent(): android.view.ViewGroup? {
+    var currentParent = parent
+    while (currentParent != null) {
+      if (currentParent.javaClass.name.contains("ScrollView") || 
+          currentParent.javaClass.name.contains("Scroll")) {
+        return currentParent as? android.view.ViewGroup
+      }
+      currentParent = currentParent.parent
+    }
+    return null
+  }
+
+  override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+    // Intercept at the dispatch level to prevent parent scrollview interference
+    ev?.let { event ->
+      when (event.action and MotionEvent.ACTION_MASK) {
+        MotionEvent.ACTION_DOWN -> {
+          // Block parent interception immediately at dispatch level
+          var p = parent
+          while (p != null) {
+            p.requestDisallowInterceptTouchEvent(true)
+            p = p.parent
+          }
+        }
+        MotionEvent.ACTION_POINTER_DOWN -> {
+          // Pinch detected - aggressive blocking
+          var p = parent
+          while (p != null) {
+            p.requestDisallowInterceptTouchEvent(true)
+            p = p.parent
+          }
+        }
+      }
+    }
+    return super.dispatchTouchEvent(ev)
+  }
 
   private val onMapClick by EventDispatcher<MapClickEvent>()
   private val onMapLongClick by EventDispatcher<MapClickEvent>()
@@ -80,6 +189,7 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
 
   private lateinit var cameraState: CameraPositionState
   private var manualCameraControl = false
+  private var selectedMarkerId = mutableStateOf<String?>(null)
 
   @Composable
   override fun ComposableScope.Content() {
@@ -105,6 +215,8 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
         wasLoaded.value = true
       },
       onMapClick = { latLng ->
+        // Clear marker selection when tapping on the map background
+        selectedMarkerId.value = null
         onMapClick(
           MapClickEvent(
             Coordinates(latLng.latitude, latLng.longitude)
@@ -171,7 +283,8 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
       )
 
       for ((marker, state) in markerState.value) {
-        val icon = getIconDescriptor(marker)
+        val isSelected = selectedMarkerId.value == marker.id
+        val icon = getIconDescriptor(marker, isSelected)
 
         Marker(
           state = state,
@@ -179,9 +292,11 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
           snippet = marker.snippet,
           draggable = marker.draggable,
           anchor = marker.anchor.toOffset(),
-          zIndex = marker.zIndex,
+          zIndex = if (isSelected) marker.zIndex + 1f else marker.zIndex,
           icon = icon,
           onClick = {
+            // Update selected marker visual state
+            selectedMarkerId.value = marker.id
             onMarkerClick(
               // We can't send icon to js, because it's not serializable
               // So we need to remove it from the marker record
@@ -218,21 +333,28 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
       }
     }
 
-    LaunchedEffect(cameraState.position) {
+    LaunchedEffect(cameraState.isMoving) {
       // We don't want to send the event when the map is not loaded yet
       if (!wasLoaded.value) {
         return@LaunchedEffect
       }
 
-      val position = cameraState.position
-      onCameraMove(
-        CameraMoveEvent(
-          Coordinates(position.target.latitude, position.target.longitude),
-          position.zoom,
-          position.tilt,
-          position.bearing
-        )
-      )
+      if (!cameraState.isMoving && cameraState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE || 
+          cameraState.cameraMoveStartedReason == CameraMoveStartedReason.DEVELOPER_ANIMATION) {
+
+        if (cameraState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE || 
+            cameraState.cameraMoveStartedReason == CameraMoveStartedReason.DEVELOPER_ANIMATION) {
+          val position = cameraState.position
+          onCameraMove(
+            CameraMoveEvent(
+              Coordinates(position.target.latitude, position.target.longitude),
+              position.zoom,
+              position.tilt,
+              position.bearing
+            )
+          )
+        }
+      }
     }
     return cameraState
   }
@@ -349,16 +471,90 @@ class GoogleMapsView(context: Context, appContext: AppContext) :
     }
   }
 
-  private fun getIconDescriptor(marker: MarkerRecord): BitmapDescriptor? {
+  private fun getIconDescriptor(
+    marker: MarkerRecord,
+    isSelected: Boolean = false
+  ): BitmapDescriptor? {
+    // Prefer custom text-based icon when `text` is provided and no explicit icon is set
+    if (marker.text != null && marker.icon == null) {
+      val bitmap = createTextMarkerBitmap(marker, isSelected)
+      return bitmap?.let { BitmapDescriptorFactory.fromBitmap(it) }
+    }
+
     return marker.icon?.let { icon ->
-      val bitmap = if (icon.`is`(toKClass<SharedRef<Drawable>>())) {
+      val baseBitmap = if (icon.`is`(toKClass<SharedRef<Drawable>>())) {
         (icon.get(toKClass<SharedRef<Drawable>>()).ref as? BitmapDrawable)?.bitmap
       } else {
         icon.get(toKClass<SharedRef<Bitmap>>()).ref
       }
-
-      bitmap?.let { BitmapDescriptorFactory.fromBitmap(it) }
+      baseBitmap?.let { BitmapDescriptorFactory.fromBitmap(it) }
     }
+  }
+
+  private fun createTextMarkerBitmap(marker: MarkerRecord, isSelected: Boolean): Bitmap? {
+    val text = marker.text ?: return null
+
+    val density = context.resources.displayMetrics.density
+    fun dp(value: Float) = (value * density)
+
+    val horizontalPadding = dp(14f)
+    val verticalPadding = dp(10f)
+    val cornerRadius = dp(18f)
+    val borderWidth = dp(1f)
+
+    // Paints
+    val selectedBg = 0xFF277DA0.toInt()
+    val selectedText = 0xFFFFFFFF.toInt()
+    val selectedBorder = selectedBg
+
+    val normalBg = marker.backgroundColor ?: 0xFFFFFFFF.toInt()
+    val normalText = marker.textColor ?: 0xFF000000.toInt()
+    val normalBorder = 0xFFD1D1D1.toInt()
+
+    val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+      color = if (isSelected) selectedText else normalText
+      textSize = dp(14f)
+      typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+    }
+    val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+      color = if (isSelected) selectedBg else normalBg
+      style = Paint.Style.FILL
+    }
+    val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+      color = if (isSelected) selectedBorder else normalBorder
+      style = Paint.Style.STROKE
+      strokeWidth = borderWidth
+    }
+
+    // Measure text
+    val bounds = Rect()
+    textPaint.getTextBounds(text, 0, text.length, bounds)
+    val textWidth = bounds.width().toFloat()
+    val textHeight = bounds.height().toFloat()
+
+    // Bitmap size
+    val width = (textWidth + horizontalPadding * 2f + borderWidth * 2f).toInt()
+    val height = (textHeight + verticalPadding * 2f + borderWidth * 2f).toInt()
+
+    val bitmap = Bitmap.createBitmap(maxOf(1, width), maxOf(1, height), Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+
+    // Draw rounded rect background
+    val rect = RectF(
+      borderWidth / 2f,
+      borderWidth / 2f,
+      bitmap.width - borderWidth / 2f,
+      bitmap.height - borderWidth / 2f
+    )
+    canvas.drawRoundRect(rect, cornerRadius, cornerRadius, bgPaint)
+    canvas.drawRoundRect(rect, cornerRadius, cornerRadius, borderPaint)
+
+    // Draw text centered vertically, left with padding
+    val x = horizontalPadding
+    val y = (bitmap.height / 2f) + (textHeight / 2f) - bounds.bottom
+    canvas.drawText(text, x, y, textPaint)
+
+    return bitmap
   }
 }
 

@@ -15,6 +15,7 @@ class AppleMapsViewProps: ExpoSwiftUI.ViewProps {
   @Field var properties: MapProperties = MapProperties()
   let onMapClick = EventDispatcher()
   let onMarkerClick = EventDispatcher()
+  let onAnnotationClick = EventDispatcher()
   let onPolylineClick = EventDispatcher()
   let onPolygonClick = EventDispatcher()
   let onCircleClick = EventDispatcher()

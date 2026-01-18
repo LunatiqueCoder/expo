@@ -33,6 +33,7 @@ export const AppleMapsView = React.forwardRef<AppleMapsViewType, AppleMapsViewPr
       onPolylineClick,
       onCircleClick,
       onPolygonClick,
+      onAnnotationClick,
       annotations,
       polylines,
       circles,
@@ -57,6 +58,7 @@ export const AppleMapsView = React.forwardRef<AppleMapsViewType, AppleMapsViewPr
     const onNativePolylineClick = useNativeEvent(onPolylineClick);
     const onNativePolygonClick = useNativeEvent(onPolygonClick);
     const onNativeCircleClick = useNativeEvent(onCircleClick);
+    const onNativeAnnotationClick = useNativeEvent(onAnnotationClick);
 
     const parsedPolylines = polylines?.map((polyline) => ({
       ...polyline,
@@ -99,6 +101,7 @@ export const AppleMapsView = React.forwardRef<AppleMapsViewType, AppleMapsViewPr
         onPolylineClick={onNativePolylineClick}
         onPolygonClick={onNativePolygonClick}
         onCircleClick={onNativeCircleClick}
+        onAnnotationClick={onNativeAnnotationClick}
       />
     );
   }

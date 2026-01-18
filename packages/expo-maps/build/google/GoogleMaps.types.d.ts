@@ -36,6 +36,18 @@ export type GoogleMapsMarker = {
      */
     snippet?: string;
     /**
+     * The text to render inside a pill-like annotation icon.
+     */
+    text?: string;
+    /**
+     * Background color for the pill-like annotation icon.
+     */
+    backgroundColor?: ProcessedColorValue | string;
+    /**
+     * Text color for the pill-like annotation icon.
+     */
+    textColor?: ProcessedColorValue | string;
+    /**
      * Whether the marker is draggable.
      */
     draggable?: boolean;
