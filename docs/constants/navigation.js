@@ -76,15 +76,7 @@ export const home = [
   ]),
   makeSection('Develop', [
     makePage('develop/tools.mdx'),
-    makeGroup(
-      'Navigation',
-      [
-        makePage('develop/file-based-routing.mdx'),
-        makePage('develop/dynamic-routes.mdx'),
-        makePage('develop/next-steps.mdx'),
-      ],
-      { expanded: false }
-    ),
+    makePage('develop/app-navigation.mdx'),
     makeGroup(
       'User interface',
       [
@@ -187,6 +179,7 @@ export const general = [
     makeGroup(
       'Compile locally',
       [
+        makePage('guides/local-app-overview.mdx'),
         makePage('guides/local-app-development.mdx'),
         makePage('guides/local-app-production.mdx'),
         makePage('guides/cache-builds-remotely.mdx'),
@@ -230,6 +223,7 @@ export const general = [
     makeSection('Existing native apps', [
       makePage('brownfield/overview.mdx'),
       makePage('brownfield/get-started.mdx'),
+      makePage('brownfield/lifecycle-listeners.mdx'),
     ]),
     makeGroup(
       'Reference',
@@ -276,15 +270,17 @@ export const general = [
       makePage('router/advanced/apple-handoff.mdx'),
       makePage('router/advanced/custom-tabs.mdx'),
     ]),
+    makeGroup('Web', [
+      makePage('router/web/api-routes.mdx'),
+      makePage('router/web/middleware.mdx'),
+      makePage('router/web/static-rendering.mdx'),
+      makePage('router/web/async-routes.mdx'),
+    ]),
     makeGroup('Reference', [
       makePage('router/error-handling.mdx'),
       makePage('router/reference/url-parameters.mdx'),
-      makePage('router/reference/middleware.mdx'),
-      makePage('router/reference/redirects.mdx'),
-      makePage('router/reference/static-rendering.mdx'),
-      makePage('router/reference/async-routes.mdx'),
-      makePage('router/reference/api-routes.mdx'),
       makePage('router/reference/sitemap.mdx'),
+      makePage('router/reference/redirects.mdx'),
       makePage('router/reference/link-preview.mdx'),
       makePage('router/reference/typed-routes.mdx'),
       makePage('router/reference/screen-tracking.mdx'),
@@ -316,6 +312,7 @@ export const general = [
         makePage('modules/android-lifecycle-listeners.mdx'),
         makePage('modules/appdelegate-subscribers.mdx'),
         makePage('modules/autolinking.mdx'),
+        makePage('modules/shared-objects.mdx'),
         makePage('modules/module-config.mdx'),
         makePage('modules/mocking.mdx'),
         makePage('modules/design.mdx'),
@@ -339,6 +336,33 @@ export const general = [
       { expanded: false }
     ),
   ]),
+  makeSection('Integrations', [
+    makeGroup('Analytics and error reports', [
+      makePage('guides/using-analytics.mdx'),
+      makePage('guides/using-sentry.mdx'),
+      makePage('guides/using-bugsnag.mdx'),
+      makePage('guides/using-logrocket.mdx'),
+      makePage('guides/using-vexo.mdx'),
+    ]),
+    makeGroup('Authentication', [
+      makePage('guides/using-authentication.mdx'),
+      makePage('guides/using-clerk.mdx'),
+      makePage('guides/facebook-authentication.mdx'),
+      makePage('guides/google-authentication.mdx'),
+    ]),
+    makeGroup('CMS', [makePage('guides/using-a-cms.mdx')]),
+    makeGroup('Database and SDKs', [
+      makePage('guides/using-firebase.mdx'),
+      makePage('guides/using-supabase.mdx'),
+    ]),
+    makeGroup('Emails', [makePage('guides/using-resend.mdx')]),
+    makeGroup('Feature flags', [makePage('guides/using-feature-flags.mdx')]),
+    makeGroup('In-app purchases', [makePage('guides/in-app-purchases.mdx')]),
+    makeGroup('Push notifications', [makePage('guides/using-push-notifications-services.mdx')]),
+    makeGroup('Tools', [makePage('guides/using-eslint.mdx'), makePage('guides/typescript.mdx')]),
+    makeGroup('TV apps', [makePage('guides/building-for-tv.mdx')]),
+    makeGroup('Web apps', [makePage('guides/using-nextjs.mdx')]),
+  ]),
   makeSection(
     'More',
     [
@@ -356,24 +380,6 @@ export const general = [
         makePage('guides/local-first.mdx'),
         makePage('guides/keyboard-handling.mdx'),
         makePage('guides/expo-ui-swift-ui.mdx'),
-      ]),
-      makeSection('Integrations', [
-        makePage('guides/using-analytics.mdx'),
-        makePage('guides/facebook-authentication.mdx'),
-        makePage('guides/using-supabase.mdx'),
-        makePage('guides/using-firebase.mdx'),
-        makePage('guides/google-authentication.mdx'),
-        makePage('guides/using-eslint.mdx'),
-        makePage('guides/using-nextjs.mdx'),
-        makePage('guides/using-logrocket.mdx'),
-        makePage('guides/using-sentry.mdx'),
-        makePage('guides/using-bugsnag.mdx'),
-        makePage('guides/using-vexo.mdx'),
-        makePage('guides/building-for-tv.mdx'),
-        makePage('guides/typescript.mdx'),
-        makePage('guides/in-app-purchases.mdx'),
-        makePage('guides/using-push-notifications-services.mdx'),
-        makePage('guides/using-feature-flags.mdx'),
       ]),
       makeSection('Troubleshooting', [
         makePage('troubleshooting/overview.mdx'),
@@ -399,6 +405,7 @@ export const eas = [
     [
       makePage('eas/index.mdx'),
       makePage('eas/json.mdx'),
+      makePage('eas/cli.mdx'),
       makePage('eas/environment-variables.mdx'),
     ],
     {
@@ -474,6 +481,7 @@ export const eas = [
         makePage('build-reference/infrastructure.mdx'),
         makePage('build-reference/app-extensions.mdx'),
         makePage('build-reference/easignore.mdx'),
+        makePage('build-reference/npx-testflight.mdx'),
         makePage('build-reference/limitations.mdx'),
       ],
       { expanded: false }
@@ -691,6 +699,7 @@ const versionsReference = VERSIONS.reduce(
           makePage('more/expo-cli.mdx'),
           makePage('more/create-expo.mdx'),
           makePage('more/qr-codes.mdx'),
+          makePage('more/release-statuses.mdx'),
           makePage('more/glossary-of-terms.mdx'),
         ],
         {
@@ -802,7 +811,7 @@ function pagesFromDir(dir) {
   const entities = fs.readdirSync(dirPath, { withFileTypes: true });
 
   const files = entities
-    .filter(entity => entity.isFile())
+    .filter(entity => entity.isFile() && entity.name !== 'metadata.json')
     .map(file => makePage(path.join(dir, file.name)));
 
   const folders = entities
@@ -821,13 +830,47 @@ function pagesFromDir(dir) {
         // otherwise sort by name (title)
         return a.name.localeCompare(b.name);
       });
-      return folderPages.length > 0
-        ? makeGroup(folder.name.toUpperCase(), sortedFolderPages, { expanded: true })
-        : null;
+
+      if (folderPages.length === 0) {
+        return null;
+      }
+
+      const metaJsonPath = path.join(dirPath, folder.name, 'metadata.json');
+      let sidebarTitle = folder.name.toUpperCase();
+      let expanded = true;
+
+      if (fs.existsSync(metaJsonPath)) {
+        try {
+          const metaContent = fs.readFileSync(metaJsonPath, 'utf-8');
+          const meta = JSON.parse(metaContent);
+          if (meta.sidebarTitle) {
+            sidebarTitle = meta.sidebarTitle;
+          }
+          if (typeof meta.expanded === 'boolean') {
+            expanded = meta.expanded;
+          }
+        } catch (error) {
+          // fallback to default behavior
+          console.warn(`Invalid metadata.json in ${metaJsonPath}:`, error.message);
+        }
+      }
+
+      return makeGroup(sidebarTitle, sortedFolderPages, { expanded });
     })
     .filter(Boolean);
 
-  return [...files, ...folders].sort((a, b) => a.name.localeCompare(b.name));
+  return [...files, ...folders].sort((a, b) => {
+    // prioritize index files first
+    if (a.isIndex && !b.isIndex) {
+      return -1;
+    }
+    if (!a.isIndex && b.isIndex) {
+      return 1;
+    }
+
+    // otherwise sort by name (title)
+    return a.name.localeCompare(b.name);
+  });
 }
 
 /**

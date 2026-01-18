@@ -55,14 +55,16 @@ describe('exports static', () => {
       expect(html.querySelector('[data-testid="styled-text"]')?.textContent).toEqual('Hello World');
     });
 
-    ['other', 'welcome-to-the-universe'].forEach((post) => {
-      it(`can serve up statically generated html for post: ${post}`, async () => {
+    ['other', 'welcome-to-the-universe'].forEach((post) => {});
+    it.each([{ post: 'other' }, { post: 'welcome-to-the-universe' }])(
+      `can serve up statically generated html for post: $post`,
+      async ({ post }) => {
         const html = getHtml(await server.fetchAsync(`/${post}`).then((res) => res.text()));
         expect(html.querySelector('[data-testid="post-text"]')?.textContent).toEqual(
           `Post: ${post}`
         );
-      });
-    });
+      }
+    );
 
     it(`gets a 404`, async () => {
       expect(await server.fetchAsync('/missing-route').then((res) => res.status)).toBe(404);
@@ -89,6 +91,8 @@ describe('exports static', () => {
     expect(files).toContain('[post].html');
     expect(files).toContain('welcome-to-the-universe.html');
     expect(files).toContain('other.html');
+
+    expect(files).toContain('_expo/.routes.json');
   });
 
   it('has source maps', async () => {
@@ -193,8 +197,8 @@ describe('exports static', () => {
       return link.attributes.as !== 'font';
     });
     expect(links.length).toBe(
-      // Global CSS, CSS Module, Vaul Modal CSS (and entry point)
-      6
+      // Global CSS, CSS Module
+      4
     );
 
     const linkStrings = links.map((l) => l.toString());
@@ -207,13 +211,6 @@ describe('exports static', () => {
         ),
         expect.stringMatching(
           /<link rel="stylesheet" href="\/_expo\/static\/css\/global-(?<md5>[0-9a-fA-F]{32})\.css">/
-        ),
-        // Modal CSS module extracted from Vaul modal
-        expect.stringMatching(
-          /<link rel="preload" href="\/_expo\/static\/css\/modal\.module-(?<md5>[0-9a-fA-F]{32})\.css" as="style">/
-        ),
-        expect.stringMatching(
-          /<link rel="stylesheet" href="\/_expo\/static\/css\/modal\.module-(?<md5>[0-9a-fA-F]{32})\.css">/
         ),
         // Example test CSS module (preload + stylesheet)
         expect.stringMatching(
@@ -236,8 +233,8 @@ describe('exports static', () => {
 
     // CSS Module
     expect(
-      fs.readFileSync(path.join(outputDir, links[3].attributes.href), 'utf-8')
-    ).toMatchInlineSnapshot(`"div{background:#0ff}"`);
+      fs.readFileSync(path.join(outputDir, links[2].attributes.href), 'utf-8')
+    ).toMatchInlineSnapshot(`".HPV33q_text{color:#1e90ff}"`);
 
     const styledHtml = await getPageHtml(outputDir, 'styled.html');
 

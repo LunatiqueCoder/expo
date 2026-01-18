@@ -11,7 +11,7 @@ import type {
   MixedOutput,
   Module,
   ReadOnlyGraph,
-} from '@expo/metro/metro/DeltaBundler/types.flow';
+} from '@expo/metro/metro/DeltaBundler/types';
 import { isResolvedDependency } from '@expo/metro/metro/lib/isResolvedDependency';
 import type { SerializerConfigT } from '@expo/metro/metro-config';
 import assert from 'assert';
@@ -149,7 +149,6 @@ function populateModuleWithImportUsage(value: Module<AdvancedMixedOutput>) {
     assert(reconcile, 'reconcile settings are required in the module graph for post transform.');
 
     const deps = collectDependenciesForShaking(
-      // @ts-expect-error
       ast,
       reconcile.collectDependenciesOptions
     ).dependencies;

@@ -71,6 +71,7 @@ it(`can create a micro Metro graph fixture`, async () => {
                   },
                   "hasCjsExports": false,
                   "lineCount": 6,
+                  "loaderReference": undefined,
                   "map": [
                     [
                       4,
@@ -226,6 +227,7 @@ it(`can create a micro Metro graph fixture`, async () => {
                   },
                   "hasCjsExports": false,
                   "lineCount": 14,
+                  "loaderReference": undefined,
                   "map": [
                     [
                       7,
@@ -400,7 +402,6 @@ it(`can create a micro Metro graph fixture`, async () => {
           },
           "dev": true,
           "experimentalImportSupport": true,
-          "hot": false,
           "inlineRequires": false,
           "minify": false,
           "platform": "web",

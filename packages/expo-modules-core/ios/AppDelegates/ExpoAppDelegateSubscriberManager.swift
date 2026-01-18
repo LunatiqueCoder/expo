@@ -1,6 +1,8 @@
 import Dispatch
 import Foundation
 
+@MainActor
+@preconcurrency
 public class ExpoAppDelegateSubscriberManager: NSObject {
 #if os(iOS) || os(tvOS)
 
@@ -10,10 +12,10 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     let parsedSubscribers = ExpoAppDelegateSubscriberRepository.subscribers.filter {
-      $0.responds(to: #selector(application(_:willFinishLaunchingWithOptions:)))
+      $0.responds(to: #selector(UIApplicationDelegate.application(_:willFinishLaunchingWithOptions:)))
     }
 
-    // If we can't find a subscriber that implements `willFinishLaunchingWithOptions`, we will delegate the decision if we can handel the passed URL to
+    // If we can't find a subscriber that implements `willFinishLaunchingWithOptions`, we will delegate the decision if we can handle the passed URL to
     // the `didFinishLaunchingWithOptions` method by returning `true` here.
     //  You can read more about how iOS handles deep links here: https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application#discussion
     if parsedSubscribers.isEmpty {
@@ -42,7 +44,7 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
   @objc
   public static func applicationWillFinishLaunching(_ notification: Notification) {
     let parsedSubscribers = ExpoAppDelegateSubscriberRepository.subscribers.filter {
-      $0.responds(to: #selector(applicationWillFinishLaunching(_:)))
+      $0.responds(to: #selector(NSApplicationDelegate.applicationWillFinishLaunching(_:)))
     }
 
     parsedSubscribers.forEach { subscriber in
@@ -139,7 +141,18 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
   }
 #endif
 
-  // TODO: - Responding to Environment Changes
+  // MARK: - Responding to Environment Changes
+
+#if os(iOS) || os(tvOS)
+
+  @objc
+  public static func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
+    ExpoAppDelegateSubscriberRepository
+      .subscribers
+      .forEach { $0.applicationDidReceiveMemoryWarning?(application) }
+  }
+
+#endif
 
   // TODO: - Managing App State Restoration
 
@@ -152,13 +165,16 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     handleEventsForBackgroundURLSession identifier: String,
     completionHandler: @escaping () -> Void
   ) {
-    let selector = #selector(application(_:handleEventsForBackgroundURLSession:completionHandler:))
+    let selector = #selector(UIApplicationDelegate.application(_:handleEventsForBackgroundURLSession:completionHandler:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
+    if subs.isEmpty {
+      completionHandler()
+      return
+    }
     var subscribersLeft = subs.count
-    let dispatchQueue = DispatchQueue(label: "expo.application.handleBackgroundEvents")
 
-    let handler = {
-      dispatchQueue.sync {
+    let aggregatedHandler = {
+      DispatchQueue.main.async {
         subscribersLeft -= 1
 
         if subscribersLeft == 0 {
@@ -167,12 +183,8 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
       }
     }
 
-    if subs.isEmpty {
-      completionHandler()
-    } else {
-      subs.forEach {
-        $0.application?(application, handleEventsForBackgroundURLSession: identifier, completionHandler: handler)
-      }
+    subs.forEach {
+      $0.application?(application, handleEventsForBackgroundURLSession: identifier, completionHandler: aggregatedHandler)
     }
   }
 
@@ -201,15 +213,19 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
-    let selector = #selector(application(_:didReceiveRemoteNotification:fetchCompletionHandler:))
+    let selector = #selector(UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
+    if subs.isEmpty {
+      completionHandler(.noData)
+      return
+    }
+
     var subscribersLeft = subs.count
-    let dispatchQueue = DispatchQueue(label: "expo.application.remoteNotification", qos: .userInteractive)
     var failedCount = 0
     var newDataCount = 0
 
-    let handler = { (result: UIBackgroundFetchResult) in
-      dispatchQueue.sync {
+    let aggregatedHandler = { (result: UIBackgroundFetchResult) in
+      DispatchQueue.main.async {
         if result == .failed {
           failedCount += 1
         } else if result == .newData {
@@ -230,12 +246,8 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
       }
     }
 
-    if subs.isEmpty {
-      completionHandler(.noData)
-    } else {
-      subs.forEach { subscriber in
-        subscriber.application?(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: handler)
-      }
+    subs.forEach { subscriber in
+      subscriber.application?(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: aggregatedHandler)
     }
   }
 
@@ -245,7 +257,7 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     _ application: NSApplication,
     didReceiveRemoteNotification userInfo: [String: Any]
   ) {
-    let selector = #selector(application(_:didReceiveRemoteNotification:))
+    let selector = #selector(NSApplicationDelegate.application(_:didReceiveRemoteNotification:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
 
     subs.forEach { subscriber in
@@ -272,14 +284,13 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
   ) -> Bool {
-    let selector = #selector(application(_:continue:restorationHandler:))
+    let selector = #selector(UIApplicationDelegate.application(_:continue:restorationHandler:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
     var subscribersLeft = subs.count
-    let dispatchQueue = DispatchQueue(label: "expo.application.continueUserActivity", qos: .userInteractive)
     var allRestorableObjects = [UIUserActivityRestoring]()
 
-    let handler = { (restorableObjects: [UIUserActivityRestoring]?) in
-      dispatchQueue.sync {
+    let aggregatedHandler = { (restorableObjects: [UIUserActivityRestoring]?) in
+      DispatchQueue.main.async {
         if let restorableObjects = restorableObjects {
           allRestorableObjects.append(contentsOf: restorableObjects)
         }
@@ -293,7 +304,7 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     }
 
     return subs.reduce(false) { result, subscriber in
-      return subscriber.application?(application, continue: userActivity, restorationHandler: handler) ?? false || result
+      return subscriber.application?(application, continue: userActivity, restorationHandler: aggregatedHandler) ?? false || result
     }
   }
 #elseif os(macOS)
@@ -303,14 +314,13 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([any NSUserActivityRestoring]) -> Void
   ) -> Bool {
-    let selector = #selector(application(_:continue:restorationHandler:))
+    let selector = #selector(NSApplicationDelegate.application(_:continue:restorationHandler:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
     var subscribersLeft = subs.count
-    let dispatchQueue = DispatchQueue(label: "expo.application.continueUserActivity", qos: .userInteractive)
     var allRestorableObjects = [NSUserActivityRestoring]()
 
-    let handler = { (restorableObjects: [NSUserActivityRestoring]?) in
-      dispatchQueue.sync {
+    let aggregatedHandler = { (restorableObjects: [NSUserActivityRestoring]?) in
+      DispatchQueue.main.async {
         if let restorableObjects = restorableObjects {
           allRestorableObjects.append(contentsOf: restorableObjects)
         }
@@ -324,7 +334,7 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     }
 
     return subs.reduce(false) { result, subscriber in
-      return subscriber.application?(application, continue: userActivity, restorationHandler: handler) ?? false || result
+      return subscriber.application?(application, continue: userActivity, restorationHandler: aggregatedHandler) ?? false || result
     }
   }
 #endif
@@ -352,14 +362,18 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     performActionFor shortcutItem: UIApplicationShortcutItem,
     completionHandler: @escaping (Bool) -> Void
   ) {
-    let selector = #selector(application(_:performActionFor:completionHandler:))
+    let selector = #selector(UIApplicationDelegate.application(_:performActionFor:completionHandler:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
     var subscribersLeft = subs.count
     var result: Bool = false
-    let dispatchQueue = DispatchQueue(label: "expo.application.performAction", qos: .userInteractive)
 
-    let handler = { (succeeded: Bool) in
-      dispatchQueue.sync {
+    if subs.isEmpty {
+      completionHandler(result)
+      return
+    }
+
+    let aggregatedHandler = { (succeeded: Bool) in
+      DispatchQueue.main.async {
         result = result || succeeded
         subscribersLeft -= 1
 
@@ -369,12 +383,8 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
       }
     }
 
-    if subs.isEmpty {
-      completionHandler(result)
-    } else {
-      subs.forEach { subscriber in
-        subscriber.application?(application, performActionFor: shortcutItem, completionHandler: handler)
-      }
+    subs.forEach { subscriber in
+      subscriber.application?(application, performActionFor: shortcutItem, completionHandler: aggregatedHandler)
     }
   }
 #endif
@@ -387,15 +397,18 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     _ application: UIApplication,
     performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
-    let selector = #selector(application(_:performFetchWithCompletionHandler:))
+    let selector = #selector(UIApplicationDelegate.application(_:performFetchWithCompletionHandler:))
     let subs = ExpoAppDelegateSubscriberRepository.subscribers.filter { $0.responds(to: selector) }
     var subscribersLeft = subs.count
-    let dispatchQueue = DispatchQueue(label: "expo.application.performFetch", qos: .userInteractive)
+    if subs.isEmpty {
+      completionHandler(.noData)
+      return
+    }
     var failedCount = 0
     var newDataCount = 0
 
-    let handler = { (result: UIBackgroundFetchResult) in
-      dispatchQueue.sync {
+    let aggregatedHandler = { (result: UIBackgroundFetchResult) in
+      DispatchQueue.main.async {
         if result == .failed {
           failedCount += 1
         } else if result == .newData {
@@ -416,12 +429,8 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
       }
     }
 
-    if subs.isEmpty {
-      completionHandler(.noData)
-    } else {
-      subs.forEach { subscriber in
-        subscriber.application?(application, performFetchWithCompletionHandler: handler)
-      }
+    subs.forEach { subscriber in
+      subscriber.application?(application, performFetchWithCompletionHandler: aggregatedHandler)
     }
   }
 
@@ -458,7 +467,7 @@ public class ExpoAppDelegateSubscriberManager: NSObject {
     let infoPlistOrientations = deviceOrientationMask.isEmpty ? universalOrientationMask : deviceOrientationMask
 
     let parsedSubscribers = ExpoAppDelegateSubscriberRepository.subscribers.filter {
-      $0.responds(to: #selector(application(_:supportedInterfaceOrientationsFor:)))
+      $0.responds(to: #selector(UIApplicationDelegate.application(_:supportedInterfaceOrientationsFor:)))
     }
 
     // We want to create an intersection of all orientations set by subscribers.

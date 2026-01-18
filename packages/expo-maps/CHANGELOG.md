@@ -6,15 +6,27 @@
 
 ### 🎉 New features
 
+- [iOS] Add `monogram` property to `AppleMapsMarker` for displaying initials on markers. ([#42159](https://github.com/expo/expo/pull/42159) by [@huextrat](https://github.com/huextrat))
+- [iOS] Add `latitudeDelta` and `longitudeDelta` to `onCameraMove` event payload. ([#41655](https://github.com/expo/expo/pull/41655) by [@matinzd](https://github.com/matinzd))
+
 ### 🐛 Bug fixes
 
+- [iOS] Fix MapKit built-in buttons not responding ([#41151](https://github.com/expo/expo/pull/41151) by [@nishan](https://github.com/intergalacticspacehighway))
+- [iOS] Fix Map resets camera position on navigation tab switch. ([#41639](https://github.com/expo/expo/pull/41639) by [@nishan](https://github.com/intergalacticspacehighway))
+
 ### 💡 Others
+
+- [iOS] Export `MapStyleElevation` enum. ([#42148](https://github.com/expo/expo/pull/42148) by [@gustavoharff](https://github.com/gustavoharff))
+
+## 0.12.9 - 2025-12-05
+
+_This version does not introduce any user-facing changes._
 
 ## 0.12.8 - 2025-10-01
 
 ### 🐛 Bug fixes
 
-- [iOS] Add workaround for iOS 26 onTapGesture known issue ([#39849](https://github.com/expo/expo/pull/39849) by [@nishan](https://github.com/intergalacticspacehighway)) ([#39849](https://github.com/expo/expo/pull/39849) by [@intergalacticspacehighway](https://github.com/intergalacticspacehighway))
+- [iOS] Add workaround for iOS 26 onTapGesture known issue ([#39849](https://github.com/expo/expo/pull/39849) by [@nishan](https://github.com/intergalacticspacehighway))
 
 ## 0.12.7 — 2025-09-11
 

@@ -31,6 +31,7 @@ export interface ModuleAndroidProjectInfo {
   name: string;
   sourceDir: string;
   modules: ModuleAndroidModuleInfo[];
+  services: string[];
   packages: string[];
   publication?: AndroidPublication;
   aarProjects?: AndroidGradleAarProjectDescriptor[];
@@ -65,8 +66,12 @@ export interface ModuleIosPodspecInfo {
   podName: string;
   podspecDir: string;
 }
+export interface ModuleIosConfig {
+  name: string | null;
+  class: string;
+}
 export interface ModuleDescriptorIos extends CommonNativeModuleDescriptor {
-  modules: string[];
+  modules: ModuleIosConfig[];
   pods: ModuleIosPodspecInfo[];
   flags: Record<string, any> | undefined;
   swiftModuleNames: string[];
@@ -163,6 +168,10 @@ export interface AndroidPublication {
   repository: string;
 }
 
+export type RawAppleModuleConfig = {
+  name: string;
+  class: string;
+};
 /**
  * Represents a raw config specific to Apple platforms.
  */
@@ -170,7 +179,7 @@ export type RawModuleConfigApple = {
   /**
    * Names of Swift native modules classes to put to the generated modules provider file.
    */
-  modules?: string[];
+  modules?: (string | RawAppleModuleConfig)[];
 
   /**
    * Names of Swift classes that hooks into `ExpoAppDelegate` to receive AppDelegate life-cycle events.
@@ -235,10 +244,16 @@ export type RawAndroidProjectConfig = {
    * Won't be run if the publication is not defined.
    */
   shouldUsePublicationScriptPath?: string;
+
   /**
-   * Names of the modules to be linked in the project.
+   * List of modules provided by the package.
    */
   modules?: (string | RawAndroidModuleConfig)[];
+
+  /**
+   * Full qualified names of Android services (`expo.modules.kotlin.services.Service`) provided by the package.
+   */
+  services?: string[];
 
   /**
    * Prebuilded AAR projects.

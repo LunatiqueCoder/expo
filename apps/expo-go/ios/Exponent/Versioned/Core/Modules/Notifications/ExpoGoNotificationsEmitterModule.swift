@@ -1,7 +1,7 @@
 // Copyright 2025-present 650 Industries. All rights reserved.
 
 import ExpoModulesCore
-import EXNotifications
+import ExpoNotifications
 
 public final class ExpoGoNotificationsEmitterModule: EmitterModule {
   private let scopeKey: String
@@ -31,11 +31,15 @@ public final class ExpoGoNotificationsEmitterModule: EmitterModule {
     return false
   }
 
-  override public func serializedNotification(_ notification: UNNotification) -> [String: Any] {
+  override public func serializedNotification(_ notification: UNNotification) -> NotificationRecord {
     return EXScopedNotificationSerializer.serializedNotification(notification)
   }
 
   override public func serializedResponse(_ response: UNNotificationResponse) -> [String: Any] {
-    return EXScopedNotificationSerializer.serializedNotificationResponse(response)
+    let serializedResponseMutable = NotificationResponseRecord(from: response)
+    serializedResponseMutable.notification = serializedNotification(response.notification)
+
+    return serializedResponseMutable.toDictionary(appContext: appContext)
   }
+
 }

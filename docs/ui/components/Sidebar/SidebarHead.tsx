@@ -18,6 +18,14 @@ type SidebarHeadProps = {
 
 export const SidebarHead = ({ sidebarActiveGroup }: SidebarHeadProps) => {
   const isPreviewVisible = shouldShowFeaturePreviewLink();
+  const mainSectionMap: Record<string, string> = {
+    home: 'Home',
+    general: 'Guides',
+    eas: 'Expo Application Services',
+    reference: 'Reference',
+    learn: 'Learn',
+  };
+  const mainSection = mainSectionMap[sidebarActiveGroup];
 
   if (sidebarActiveGroup === 'archive') {
     return (
@@ -34,12 +42,8 @@ export const SidebarHead = ({ sidebarActiveGroup }: SidebarHeadProps) => {
 
   return (
     <>
-      <div
-        className={mergeClasses(
-          'flex flex-col gap-0.5 border-b border-default bg-default p-4',
-          'compact-height:pb-3'
-        )}>
-        <Search />
+      <div className="flex flex-col gap-0.5 border-b border-default bg-default p-4 compact-height:pb-3">
+        <Search mainSection={mainSection} />
         <div
           className={mergeClasses(
             'contents',

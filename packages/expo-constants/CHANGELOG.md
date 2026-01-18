@@ -6,11 +6,24 @@
 
 ### 🎉 New features
 
+- [android] Read projectRoot from expo-autolinking ([#40666](https://github.com/expo/expo/pull/40666) by [@gabrieldonadel](https://github.com/gabrieldonadel))
+
 ### 🐛 Bug fixes
+
+- Fixed empty `expoConfig` on Android. ([#41259](https://github.com/expo/expo/pull/41259) by [@kudo](https://github.com/kudo))
 
 ### 💡 Others
 
 - [Android] Removed unused native dependencies. ([#39763](https://github.com/expo/expo/pull/39763) by [@lukmccall](https://github.com/lukmccall))
+- [Android] Removed references to legacy native modules API. ([#41855](https://github.com/expo/expo/pull/41855) by [@lukmccall](https://github.com/lukmccall))
+
+## 18.0.11 - 2025-12-05
+
+_This version does not introduce any user-facing changes._
+
+## 18.0.10 - 2025-10-21
+
+_This version does not introduce any user-facing changes._
 
 ## 18.0.9 — 2025-09-16
 

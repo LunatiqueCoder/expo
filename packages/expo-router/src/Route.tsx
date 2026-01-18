@@ -46,6 +46,8 @@ export type RouteNode = {
   contextKey: string;
   /** Redirect Context Module ID, used for matching children. */
   destinationContextKey?: string;
+  /** Parent Context Module ID, used for matching static routes to their parent dynamic route. */
+  parentContextKey?: string;
   /** Is the redirect permanent. */
   permanent?: boolean;
   /** Added in-memory */
@@ -61,9 +63,7 @@ export type RouteNode = {
 };
 
 const CurrentRouteContext = createContext<RouteNode | null>(null);
-export const LocalRouteParamsContext = createContext<
-  Record<string, string | undefined> | undefined
->({});
+export const LocalRouteParamsContext = createContext<object | undefined>({});
 
 if (process.env.NODE_ENV !== 'production') {
   CurrentRouteContext.displayName = 'RouteNode';
@@ -84,13 +84,13 @@ export function useContextKey(): string {
 
 export type RouteProps = PropsWithChildren<{
   node: RouteNode;
-  route?: { params: Record<string, string | undefined> };
+  params: object | undefined;
 }>;
 
 /** Provides the matching routes and filename to the children. */
-export function Route({ children, node, route }: RouteProps) {
+export function Route({ children, node, params }: RouteProps) {
   return (
-    <LocalRouteParamsContext.Provider value={route?.params}>
+    <LocalRouteParamsContext.Provider value={params}>
       <CurrentRouteContext.Provider value={node}>{children}</CurrentRouteContext.Provider>
     </LocalRouteParamsContext.Provider>
   );

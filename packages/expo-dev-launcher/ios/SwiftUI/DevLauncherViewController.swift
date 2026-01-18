@@ -1,22 +1,13 @@
-import UIKit
 import SwiftUI
+import ExpoModulesCore
 
 @objc public class DevLauncherViewController: UIViewController {
   private var hostingController: UIHostingController<DevLauncherRootView>?
   var viewModel = DevLauncherViewModel()
 
-  @objc public override init(nibName: String?, bundle: Bundle?) {
-    super.init(nibName: nibName, bundle: bundle)
-    setupViewController()
-  }
-
-  @objc public convenience init() {
-    self.init(nibName: nil, bundle: nil)
-  }
-
-  required init?(coder: NSCoder) {
-    super.init(coder: coder)
-    setupViewController()
+  public override func viewDidLoad() {
+    super.viewDidLoad()
+    addHostingController()
   }
 
   private func setupViewController() {
@@ -25,11 +16,26 @@ import SwiftUI
     let rootView = DevLauncherRootView(viewModel: viewModel)
     hostingController = UIHostingController(rootView: rootView)
     hostingController?.view.backgroundColor = UIColor.clear
+#if os(macOS)
+    hostingController?.view.appearance = NSAppearance(named: .aqua)
+#endif
   }
 
-  public override func viewDidLoad() {
-    super.viewDidLoad()
+  @objc public func resetHostingController() {
+#if !os(macOS)
+    if let hostingController {
+      hostingController.willMove(toParent: nil)
+      hostingController.view.removeFromSuperview()
+      hostingController.removeFromParent()
+    }
+#endif
+    hostingController = nil
+    if isViewLoaded {
+      addHostingController()
+    }
+  }
 
+  private func addHostingController() {
     if hostingController == nil {
       setupViewController()
     }
@@ -39,17 +45,19 @@ import SwiftUI
     }
 
     addChild(hostingController)
+    hostingController.view.translatesAutoresizingMaskIntoConstraints = false
     view.addSubview(hostingController.view)
 
-    hostingController.view.frame = view.bounds
-    hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    NSLayoutConstraint.activate([
+      hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+      hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+    ])
 
-    hostingController.didMove(toParent: self)
+#if !os(macOS)
     navigationController?.setNavigationBarHidden(true, animated: false)
-  }
-
-  public override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    hostingController?.view.frame = view.bounds
+    hostingController.didMove(toParent: self)
+#endif
   }
 }

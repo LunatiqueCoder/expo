@@ -69,29 +69,75 @@ open class DevMenuManager: NSObject {
 
   var currentScreen: String?
 
-  /**
-   For backwards compatibility in projects that call this method from AppDelegate
-   */
-  @available(*, deprecated, message: "Manual setup of DevMenuManager in AppDelegate is deprecated in favor of automatic setup with Expo Modules")
-  @objc
-  public static func configure(withBridge bridge: AnyObject) { }
+  weak var hostDelegate: DevMenuHostDelegate?
 
   @objc
-  public var currentBridge: RCTBridge? {
+  public private(set) var currentBridge: RCTBridge? {
     didSet {
       updateAutoLaunchObserver()
 
       if let currentBridge {
-        disableRNDevMenuHoykeys(for: currentBridge)
+        DispatchQueue.main.async {
+          self.disableRNDevMenuHoykeys(for: currentBridge)
+        }
       }
     }
   }
 
-  @objc
-  public var currentManifest: Manifest?
+  private let manifestSubject = PassthroughSubject<Void, Never>()
+  public var manifestPublisher: AnyPublisher<Void, Never> {
+    manifestSubject.eraseToAnyPublisher()
+  }
 
   @objc
-  public var currentManifestURL: URL?
+  public private(set) var currentManifest: Manifest? {
+    didSet {
+      manifestSubject.send()
+    }
+  }
+
+  @objc
+  public private(set) var currentManifestURL: URL? {
+    didSet {
+      manifestSubject.send()
+    }
+  }
+
+  @objc
+  public func setDelegate(_ delegate: DevMenuHostDelegate?) {
+    hostDelegate = delegate
+  }
+
+  @objc
+  public func setMotionGestureEnabled(_ enabled: Bool) {
+    DevMenuPreferences.motionGestureEnabled = enabled
+  }
+
+  @objc
+  public func setTouchGestureEnabled(_ enabled: Bool) {
+    DevMenuPreferences.touchGestureEnabled = enabled
+  }
+
+  @objc
+  public func getMotionGestureEnabled() -> Bool {
+    return DevMenuPreferences.motionGestureEnabled
+  }
+
+  @objc
+  public func getTouchGestureEnabled() -> Bool {
+    return DevMenuPreferences.touchGestureEnabled
+  }
+
+  @objc
+  public func updateCurrentBridge(_ bridge: RCTBridge?) {
+    currentBridge = bridge
+  }
+
+  @objc
+  public func updateCurrentManifest(_ manifest: Manifest?, manifestURL: URL?) {
+    currentManifest = manifest
+    currentManifestURL = manifestURL
+  }
 
   @objc
   public func autoLaunch(_ shouldRemoveObserver: Bool = true) {
@@ -151,7 +197,11 @@ open class DevMenuManager: NSObject {
    */
   @objc
   public var isVisible: Bool {
+#if !os(macOS)
     return Dispatch.mainSync { !(window?.isHidden ?? true) }
+#else
+    return window?.isVisible ?? false
+#endif
   }
 
   /**
@@ -208,6 +258,32 @@ open class DevMenuManager: NSObject {
   }
 
   @objc
+  public var canNavigateHome: Bool {
+    guard let delegate = hostDelegate else {
+      return false
+    }
+    return delegate.responds(to: #selector(DevMenuHostDelegate.devMenuNavigateHome))
+  }
+
+  @objc
+  public func navigateHome() {
+    guard let delegate = hostDelegate,
+      delegate.responds(to: #selector(DevMenuHostDelegate.devMenuNavigateHome)) else {
+      return
+    }
+
+    let action: () -> Void = {
+      delegate.devMenuNavigateHome?()
+    }
+
+    if Thread.isMainThread {
+      action()
+    } else {
+      DispatchQueue.main.async(execute: action)
+    }
+  }
+
+  @objc
   public func setCurrentScreen(_ screenName: String?) {
     currentScreen = screenName
   }
@@ -218,8 +294,12 @@ open class DevMenuManager: NSObject {
       return
     }
 
-    let eventDispatcher = bridge.moduleRegistry.module(forName: "EventDispatcher") as? RCTEventDispatcher
-    eventDispatcher?.sendDeviceEvent(withName: eventName, body: data)
+    if let eventDispatcher = bridge.moduleRegistry.module(forName: "EventDispatcher") as? NSObject {
+      let selector = NSSelectorFromString("sendDeviceEventWithName:body:")
+      if eventDispatcher.responds(to: selector) {
+        eventDispatcher.perform(selector, with: eventName, with: data)
+      }
+    }
   }
 
   /**
@@ -244,7 +324,17 @@ open class DevMenuManager: NSObject {
    Returns bool value whether the onboarding view should be displayed by the dev menu view.
    */
   func shouldShowOnboarding() -> Bool {
-    return !DevMenuPreferences.isOnboardingFinished
+    return !isOnboardingFinished
+  }
+
+  @objc
+  public var isOnboardingFinished: Bool {
+    return DevMenuPreferences.isOnboardingFinished
+  }
+
+  @objc
+  public func setOnboardingFinished(_ finished: Bool) {
+    DevMenuPreferences.isOnboardingFinished = finished
   }
 
   func readAutoLaunchDisabledState() {
@@ -257,9 +347,11 @@ open class DevMenuManager: NSObject {
     }
   }
 
+#if !os(macOS)
   var userInterfaceStyle: UIUserInterfaceStyle {
     return UIUserInterfaceStyle.unspecified
   }
+#endif
 
   private func setVisibility(_ visible: Bool, screen: String? = nil) -> Bool {
     if !canChangeVisibility(to: visible) {
@@ -267,7 +359,19 @@ open class DevMenuManager: NSObject {
     }
     if visible {
       setCurrentScreen(screen)
-      DispatchQueue.main.async { self.window?.makeKeyAndVisible() }
+      DispatchQueue.main.async {
+#if os(macOS)
+        self.window?.makeKeyAndOrderFront(nil)
+#else
+        if self.window?.windowScene == nil {
+          let keyWindowScene = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.windowScene
+          let windowScene = keyWindowScene ?? UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
+          self.window?.windowScene = windowScene
+        }
+        self.window?.makeKeyAndVisible()
+#endif
+      }
     } else {
       DispatchQueue.main.async { self.window?.closeBottomSheet(nil) }
     }
@@ -317,11 +421,23 @@ open class DevMenuManager: NSObject {
   }
 
   func togglePerformanceMonitor() {
+    if let delegate = hostDelegate,
+       delegate.responds(to: #selector(DevMenuHostDelegate.devMenuTogglePerformanceMonitor)) {
+      delegate.devMenuTogglePerformanceMonitor?()
+      return
+    }
+
     let devToolsDelegate = getDevToolsDelegate()
     devToolsDelegate?.togglePerformanceMonitor()
   }
 
   func toggleInspector() {
+    if let delegate = hostDelegate,
+       delegate.responds(to: #selector(DevMenuHostDelegate.devMenuToggleElementInspector)) {
+      delegate.devMenuToggleElementInspector?()
+      return
+    }
+
     let devToolsDelegate = getDevToolsDelegate()
     devToolsDelegate?.toggleElementInsector()
   }

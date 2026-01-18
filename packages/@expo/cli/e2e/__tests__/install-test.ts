@@ -202,7 +202,9 @@ it('runs `npx expo install expo@<version> --fix`', async () => {
 });
 
 it('validates when with `EXPO_NO_DEPENDENCY_VALIDATION=1 npx expo install --check`', async () => {
-  const env = { EXPO_NO_DEPENDENCY_VALIDATION: '1' };
+  const env = {
+    EXPO_NO_DEPENDENCY_VALIDATION: '1',
+  } as Partial<NodeJS.ProcessEnv> as NodeJS.ProcessEnv;
   const projectRoot = await setupTestProjectWithOptionsAsync(
     'install-check-no-validation',
     'with-blank',
@@ -235,8 +237,8 @@ describe('expo-router integration', () => {
       'with-router',
       {
         reuseExisting: false,
-        sdkVersion: '52.0.0',
-        linkExpoPackages: ['expo-router'],
+        // TODO(@hassankhan): remove @expo/router-server after publishing
+        linkExpoPackages: ['expo-router', '@expo/router-server'],
       }
     );
     const pkg = new JsonFile(path.resolve(projectRoot, 'package.json'));
@@ -275,7 +277,7 @@ describe('expo-router integration', () => {
 
     // Ensure `@react-navigation/native` was updated
     expect(pkg.read().dependencies).toMatchObject({
-      '@react-navigation/native': '^7.1.8',
+      '@react-navigation/native': '^7.1.21',
     });
-  });
+  }, 600_000);
 });

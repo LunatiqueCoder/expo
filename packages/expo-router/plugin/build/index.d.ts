@@ -17,9 +17,13 @@ declare const withRouter: ConfigPlugin<{
     sitemap?: boolean;
     /** Generate partial typed routes */
     partialTypedGroups?: boolean;
+    /** A list of headers that are set on every route response from the server */
+    headers: Record<string, string | string[]>;
     /** Enable experimental server middleware support with a `+middleware.ts` file. Requires `web.output: 'server'` to be set in app config. */
     unstable_useServerMiddleware?: boolean;
     /** Enable experimental data loader support. Requires `web.output: 'static'` to be set in app config. */
     unstable_useServerDataLoaders?: boolean;
+    /** Enable experimental server-side rendering. When enabled with `web.output: 'server'`, HTML is rendered at request time instead of being pre-rendered at build time. */
+    unstable_useServerRendering?: boolean;
 } | void>;
 export default withRouter;

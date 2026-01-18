@@ -42,6 +42,8 @@ export type RouteNode = {
     contextKey: string;
     /** Redirect Context Module ID, used for matching children. */
     destinationContextKey?: string;
+    /** Parent Context Module ID, used for matching static routes to their parent dynamic route. */
+    parentContextKey?: string;
     /** Is the redirect permanent. */
     permanent?: boolean;
     /** Added in-memory */
@@ -55,17 +57,15 @@ export type RouteNode = {
     /** Middleware function for server-side request processing. Only present on the root route node. */
     middleware?: MiddlewareNode;
 };
-export declare const LocalRouteParamsContext: import("react").Context<Record<string, string | undefined> | undefined>;
+export declare const LocalRouteParamsContext: import("react").Context<object | undefined>;
 /** Return the RouteNode at the current contextual boundary. */
 export declare function useRouteNode(): RouteNode | null;
 export declare function useContextKey(): string;
 export type RouteProps = PropsWithChildren<{
     node: RouteNode;
-    route?: {
-        params: Record<string, string | undefined>;
-    };
+    params: object | undefined;
 }>;
 /** Provides the matching routes and filename to the children. */
-export declare function Route({ children, node, route }: RouteProps): import("react").JSX.Element;
+export declare function Route({ children, node, params }: RouteProps): import("react").JSX.Element;
 export { sortRoutesWithInitial, sortRoutes };
 //# sourceMappingURL=Route.d.ts.map

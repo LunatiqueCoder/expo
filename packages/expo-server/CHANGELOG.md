@@ -6,7 +6,57 @@
 
 ### 🎉 New features
 
+- Improve SSR support ([#41477](https://github.com/expo/expo/pull/41477) by [@hassankhan](https://github.com/hassankhan))
+- Add support for server data loaders in server export mode ([#41934](https://github.com/expo/expo/pull/41934) by [@hassankhan](https://github.com/hassankhan))
+- Respect `web.output` configuration in dev server for loaders ([#42147](https://github.com/expo/expo/pull/42147) by [@hassankhan](https://github.com/hassankhan))
+
 ### 🐛 Bug fixes
+
+- Use `ImmutableRequest` for loader functions ([#42149](https://github.com/expo/expo/pull/42149) by [@hassankhan](https://github.com/hassankhan))
+
+### 💡 Others
+
+- Deduplicate shared types across `@expo/cli`, `@expo/router-server`, `expo-server` ([#40614](https://github.com/expo/expo/pull/40614) by [@hassankhan](https://github.com/hassankhan))
+- Fixed check-packages error on Windows. ([#41194](https://github.com/expo/expo/pull/41194) by [@kudo](https://github.com/kudo))
+- Unify nullish value handling for data loaders ([#42070](https://github.com/expo/expo/pull/42070) by [@hassankhan](https://github.com/hassankhan))
+- Throw an error when loader module is not found in production ([#42166](https://github.com/expo/expo/pull/42166) by [@hassankhan](https://github.com/hassankhan))
+
+## 1.0.5 - 2025-12-04
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.4 - 2025-11-03
+
+_This version does not introduce any user-facing changes._
+
+## 1.0.3 - 2025-10-28
+
+### 🐛 Bug fixes
+
+- Fix `handleRouteError` not being scoped to unhandled errors and only expose it on `http` and `express` adapter ([#40627](https://github.com/expo/expo/pull/40627) by [@kitten](https://github.com/kitten))
+- Convert `Response.error()` status `0` to `500` ([#40672](https://github.com/expo/expo/pull/40672) by [@krystofwoldrich](https://github.com/krystofwoldrich))
+
+### 💡 Others
+
+- Remove internal adapter parameters from public API surface ([#40627](https://github.com/expo/expo/pull/40627) by [@kitten](https://github.com/kitten))
+
+## 1.0.2 - 2025-10-20
+
+### 🎉 New features
+
+- Allow `deferTask(fn)` function to return undefined ([#40370](https://github.com/expo/expo/pull/40370) by [@kitten](https://github.com/kitten))
+- Return `Response` if it's thrown from request handler ([#40370](https://github.com/expo/expo/pull/40370) by [@kitten](https://github.com/kitten))
+- Add `setResponseHeaders()` runtime API ([#40370](https://github.com/expo/expo/pull/40370) by [@kitten](https://github.com/kitten))
+
+### 🐛 Bug fixes
+
+- Fix libraries copying `ImmutableRequest`s via `new Request(url, immutableRequest)` failing with immutability errors ([#40494](https://github.com/expo/expo/pull/40494) by [@kitten](https://github.com/kitten))
+
+## 1.0.1 - 2025-10-09
+
+### 🎉 New features
+
+- Allow specifying user-defined headers for all routes ([#40173](https://github.com/expo/expo/pull/40173) by [@hassankhan](https://github.com/hassankhan))
 
 ### 💡 Others
 

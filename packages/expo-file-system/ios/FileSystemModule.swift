@@ -143,11 +143,11 @@ public final class FileSystemModule: Module {
       output.exists = false
       output.isDirectory = nil
 
-      guard let permissionsManager: EXFilePermissionModuleInterface = appContext?.legacyModule(implementing: EXFilePermissionModuleInterface.self) else {
+      guard let fileSystemManager = appContext?.fileSystem else {
         return output
       }
 
-      if permissionsManager.getPathPermissions(url.path).contains(.read) {
+      if fileSystemManager.getPathPermissions(url.path).contains(.read) {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) {
           output.exists = true
@@ -333,6 +333,18 @@ public final class FileSystemModule: Module {
       // this function is internal and will be removed in the future (when returning arrays of shared objects is supported)
       Function("listAsRecords") { directory in
         try directory.listAsRecords()
+      }
+
+      Function("createFile") { (directory, name: String, content: String?) in
+        let file = FileSystemFile(url: directory.url.appendingPathComponent(name))
+        try file.create(CreateOptions())
+        return file
+      }
+
+      Function("createDirectory") { (directory, name: String) in
+        let newDirectory = FileSystemDirectory(url: directory.url.appendingPathComponent(name))
+        try newDirectory.create(CreateOptions())
+        return newDirectory
       }
 
       Property("uri") { directory in

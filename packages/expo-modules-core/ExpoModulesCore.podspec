@@ -55,7 +55,7 @@ Pod::Spec.new do |s|
     :osx => '11.0',
     :tvos => '15.1'
   }
-  s.swift_version  = '5.9'
+  s.swift_version  = '6.0'
   s.source         = { git: 'https://github.com/expo/expo.git' }
   s.static_framework = true
   s.header_dir     = 'ExpoModulesCore'
@@ -65,7 +65,20 @@ Pod::Spec.new do |s|
     header_search_paths.concat([
       # Transitive dependency of React-Core
       '"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspectortracing/jsinspector_moderntracing.framework/Headers"',
-      '"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspectorcdp/jsinspector_moderncdp.framework/Headers"'
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspectorcdp/jsinspector_moderncdp.framework/Headers"',
+      # Transitive dependencies of React-runtimescheduler
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimescheduler/React_runtimescheduler.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-performancetimeline/React_performancetimeline.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-rendererconsistency/React_rendererconsistency.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-timing/React_timing.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-debug/React_debug.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly/folly.framework/Headers"',
+      '"$(PODS_ROOT)/DoubleConversion"', # Folly includes double-conversion/double-conversion.h
+      # RCTHost.h is in React-RuntimeApple under ReactCommon subdirectory
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-RuntimeApple/React_RuntimeApple.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-RuntimeCore/React_RuntimeCore.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-jsitooling/JSITooling.framework/Headers"',
+      '"${PODS_CONFIGURATION_BUILD_DIR}/React-jserrorhandler/React_jserrorhandler.framework/Headers"',
     ])
   end
   # Swift/Objective-C compatibility
@@ -92,6 +105,8 @@ Pod::Spec.new do |s|
     s.dependency 'React-jsc'
   end
 
+  s.dependency 'ExpoModulesJSI'
+
   s.dependency 'React-Core'
   s.dependency 'ReactCommon/turbomodule/core'
   s.dependency 'React-NativeModulesApple'
@@ -100,7 +115,7 @@ Pod::Spec.new do |s|
   install_modules_dependencies(s)
 
   s.source_files = 'ios/**/*.{h,m,mm,swift,cpp}', 'common/cpp/**/*.{h,cpp}'
-  s.exclude_files = ['ios/Tests/']
+  s.exclude_files = ['ios/JSI', 'ios/Tests', 'common/cpp/JSI']
   s.compiler_flags = compiler_flags
   s.private_header_files = ['ios/**/*+Private.h', 'ios/**/Swift.h']
 

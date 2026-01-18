@@ -8,19 +8,22 @@ import expo.modules.filesystem.unifiedfile.JavaFile
 import expo.modules.filesystem.unifiedfile.SAFDocumentFile
 import expo.modules.filesystem.unifiedfile.UnifiedFileInterface
 import expo.modules.interfaces.filesystem.Permission
+import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.sharedobjects.SharedObject
 import java.io.File
 import java.util.EnumSet
 import java.util.regex.Pattern
 import kotlin.io.path.moveTo
 
-val Uri.isContentUri get(): Boolean {
-  return scheme == "content"
-}
+val Uri.isContentUri
+  get(): Boolean {
+    return scheme == "content"
+  }
 
-val Uri.isAssetUri get(): Boolean {
-  return scheme == "asset"
-}
+val Uri.isAssetUri
+  get(): Boolean {
+    return scheme == "asset"
+  }
 
 fun slashifyFilePath(path: String?): String? {
   return if (path == null) {
@@ -35,50 +38,42 @@ fun slashifyFilePath(path: String?): String? {
 
 abstract class FileSystemPath(var uri: Uri) : SharedObject() {
   private var fileAdapter: UnifiedFileInterface? = null
-  val file: UnifiedFileInterface get() {
-    val currentAdapter = fileAdapter
-    if (currentAdapter?.uri == uri) {
-      return currentAdapter
+  val file: UnifiedFileInterface
+    get() {
+      val currentAdapter = fileAdapter
+      if (currentAdapter?.uri == uri) {
+        return currentAdapter
+      }
+      val newAdapter = if (uri.isContentUri) {
+        SAFDocumentFile(appContext?.reactContext ?: throw Exception("No context"), uri)
+      } else if (uri.isAssetUri) {
+        AssetFile(appContext?.reactContext ?: throw Exception("No context"), uri)
+      } else {
+        JavaFile(uri)
+      }
+      fileAdapter = newAdapter
+      return newAdapter
     }
-    val newAdapter = if (uri.isContentUri) {
-      SAFDocumentFile(appContext?.reactContext ?: throw Exception("No context"), uri)
-    } else if (uri.isAssetUri) {
-      AssetFile(appContext?.reactContext ?: throw Exception("No context"), uri)
-    } else {
-      JavaFile(uri)
-    }
-    fileAdapter = newAdapter
-    return newAdapter
-  }
-  val javaFile: File get() =
-    if (uri.isContentUri) {
-      throw Exception("This method cannot be used with content URIs: $uri")
-    } else {
-      (file as File)
-    }
+  val javaFile: File
+    get() =
+      if (uri.isContentUri) {
+        throw Exception("This method cannot be used with content URIs: $uri")
+      } else {
+        (file as File)
+      }
 
   fun delete() {
     if (!file.exists()) {
       throw UnableToDeleteException("uri '${file.uri}' does not exist")
     }
     if (file.isDirectory()) {
-      file.listFilesAsUnified().forEach { child ->
-        if (child.isDirectory()) {
-          // Recursively delete subdirectories
-          if (uri.isContentUri) {
-            SAFDocumentFile(appContext?.reactContext ?: throw Exception("No context"), child.uri).delete()
-          } else {
-            JavaFile(child.uri).delete()
-          }
-        } else {
-          if (!child.delete()) {
-            throw UnableToDeleteException("failed to delete '${child.uri}'")
-          }
-        }
+      if (!file.deleteRecursively()) {
+        throw UnableToDeleteException("failed to delete '${file.uri}'")
       }
-    }
-    if (!file.delete()) {
-      throw UnableToDeleteException("failed to delete '${file.uri}'")
+    } else {
+      if (!file.delete()) {
+        throw UnableToDeleteException("failed to delete '${file.uri}'")
+      }
     }
   }
 
@@ -127,7 +122,10 @@ abstract class FileSystemPath(var uri: Uri) : SharedObject() {
       // TODO: Consider adding a check for asset URIs – this returns asset files of Expo Go (such as root-cert), but these are already freely available on apk mirrors ect.
       return true
     }
-    val permissions = appContext?.filePermission?.getPathPermissions(appContext?.reactContext, javaFile.path) ?: EnumSet.noneOf(Permission::class.java)
+
+    val permissions = appContext?.filePermission?.getPathPermissions(
+      appContext?.reactContext ?: throw Exceptions.ReactContextLost(), javaFile.path
+    ) ?: EnumSet.noneOf(Permission::class.java)
     return permissions.contains(permission)
   }
 
@@ -177,12 +175,14 @@ abstract class FileSystemPath(var uri: Uri) : SharedObject() {
     }
   }
 
-  val modificationTime: Long? get() {
-    validateType()
-    return file.lastModified()
-  }
+  val modificationTime: Long?
+    get() {
+      validateType()
+      return file.lastModified()
+    }
 
-  val creationTime: Long? get() {
-    return file.creationTime
-  }
+  val creationTime: Long?
+    get() {
+      return file.creationTime
+    }
 }

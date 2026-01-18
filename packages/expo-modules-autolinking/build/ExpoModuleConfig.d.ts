@@ -8,6 +8,7 @@ export declare class ExpoAndroidProjectConfig {
     name: string;
     path: string;
     modules?: ExpoAndroidModuleConfig[] | undefined;
+    services?: string[] | undefined;
     publication?: AndroidPublication | undefined;
     gradleAarProjects?: AndroidGradleAarProjectDescriptor[] | undefined;
     shouldUsePublicationScriptPath?: string | undefined;
@@ -15,7 +16,7 @@ export declare class ExpoAndroidProjectConfig {
      * Whether this project is the root one.
      */
     isDefault: boolean;
-    constructor(name: string, path: string, modules?: ExpoAndroidModuleConfig[] | undefined, publication?: AndroidPublication | undefined, gradleAarProjects?: AndroidGradleAarProjectDescriptor[] | undefined, shouldUsePublicationScriptPath?: string | undefined, 
+    constructor(name: string, path: string, modules?: ExpoAndroidModuleConfig[] | undefined, services?: string[] | undefined, publication?: AndroidPublication | undefined, gradleAarProjects?: AndroidGradleAarProjectDescriptor[] | undefined, shouldUsePublicationScriptPath?: string | undefined, 
     /**
      * Whether this project is the root one.
      */
@@ -38,7 +39,7 @@ export declare class ExpoModuleConfig {
     /**
      * Returns a list of names of Swift native modules classes to put to the generated modules provider file.
      */
-    appleModules(): string[];
+    appleModules(): (string | import("./types").RawAppleModuleConfig)[];
     /**
      * Returns a list of names of Swift classes that receives AppDelegate life-cycle events.
      */

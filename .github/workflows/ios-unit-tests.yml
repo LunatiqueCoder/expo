@@ -7,6 +7,7 @@ on:
       - .github/workflows/ios-unit-tests.yml
       - apps/expo-go/ios/**
       - packages/**/ios/**
+      - apps/native-tests/ios/**
       - tools/src/dynamic-macros/**
       - tools/src/commands/IosGenerateDynamicMacros.ts
       - tools/src/commands/IosNativeUnitTests.ts
@@ -45,10 +46,6 @@ jobs:
           submodules: true
       - name: 🔨 Switch to Xcode 26.0
         run: sudo xcode-select --switch /Applications/Xcode_26.0.app
-      - name: 🔓 Decrypt secrets if possible
-        uses: ./.github/actions/expo-git-decrypt
-        with:
-          key: ${{ secrets.GIT_CRYPT_KEY_BASE64 }}
       - name: ➕ Add `bin` to GITHUB_PATH
         run: echo "$(pwd)/bin" >> $GITHUB_PATH
       - name: 💎 Setup Ruby and install gems
@@ -81,7 +78,7 @@ jobs:
           RCT_USE_RN_DEP: 1
         working-directory: apps/native-tests/ios
       - name: 🧪 Run native iOS unit tests
-        timeout-minutes: 60
+        timeout-minutes: 30
         env:
           FASTLANE_SKIP_UPDATE_CHECK: '1'
           FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 30

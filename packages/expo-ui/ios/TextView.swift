@@ -3,57 +3,35 @@
 import SwiftUI
 import ExpoModulesCore
 
-internal final class TextViewProps: ExpoSwiftUI.ViewProps, CommonViewModifierProps {
-  @Field var fixedSize: Bool?
-  @Field var frame: FrameOptions?
-  @Field var padding: PaddingOptions?
-  @Field var testID: String?
-  @Field var modifiers: ModifierArray?
-
+public final class TextViewProps: UIBaseViewProps {
   @Field var text: String = ""
-  @Field var weight: String?
-  @Field var design: String?
-  @Field var size: Double?
-  @Field var lineLimit: Int?
-  @Field var color: Color?
+
+  // Override default frame alignment for text views
+  override var defaultFrameAlignment: Alignment { .leading }
 }
 
-internal struct TextView: ExpoSwiftUI.View {
-  @ObservedObject var props: TextViewProps
+public struct TextView: ExpoSwiftUI.View {
+  @ObservedObject public var props: TextViewProps
 
-  private func getFontWeight() -> Font.Weight {
-    switch props.weight {
-    case "ultraLight": return .ultraLight
-    case "thin": return .thin
-    case "light": return .light
-    case "regular": return .regular
-    case "medium": return .medium
-    case "semibold": return .semibold
-    case "bold": return .bold
-    case "heavy": return .heavy
-    case "black": return .black
-    default: return .regular
-    }
+  public init(props: TextViewProps) {
+    self.props = props
   }
 
-  private func getFontDesign() -> Font.Design {
-    switch props.design {
-    case "rounded": return .rounded
-    case "serif": return .serif
-    case "monospaced": return .monospaced
-    default: return .default
-    }
+  public var body: some View {
+    buildText(applyModifiers: false)
+      .applyModifiers(props.modifiers, appContext: props.appContext, globalEventDispatcher: props.globalEventDispatcher)
   }
 
-  var body: some View {
-    Text(props.text)
-      .font(.system(
-        size: CGFloat(props.size ?? 17),
-        weight: getFontWeight(),
-        design: getFontDesign()
-      ))
-      .lineLimit(props.lineLimit)
-      .foregroundColor(props.color)
-      .modifier(CommonViewModifiers(props: props, defaultFrameAlignment: .leading))
+  internal func buildText(applyModifiers: Bool = true) -> Text {
+    var result = applyModifiers
+    ? Text(props.text).applyTextModifiers(props.modifiers, appContext: props.appContext)
+    : Text(props.text)
+
+    if let children = props.children {
+      result = children
+        .compactMap { ($0.childView as? TextView)?.buildText(applyModifiers: true) }
+        .reduce(result, +)
+    }
+    return result
   }
 }

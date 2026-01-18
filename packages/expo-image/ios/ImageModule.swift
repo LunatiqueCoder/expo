@@ -115,6 +115,12 @@ public final class ImageModule: Module {
         view.enforceEarlyResizing = enforceEarlyResizing
       }
 
+      Prop("preferHighDynamicRange", false) { (view, preferHighDynamicRange: Bool) in
+        if #available(iOS 17.0, macCatalyst 17.0, tvOS 17.0, *) {
+          view.sdImageView.preferredImageDynamicRange = preferHighDynamicRange ? .constrainedHigh : .unspecified
+        }
+      }
+
       AsyncFunction("startAnimating") { (view: ImageView) in
         view.sdImageView.startAnimating()
       }
@@ -138,6 +144,10 @@ public final class ImageModule: Module {
       OnViewDidUpdateProps { view in
         view.reload()
       }
+    }
+
+    Function("configureCache") { (config: ImageCacheConfig) in
+      ImageModule.configureCache(config: config)
     }
 
     AsyncFunction("prefetch") { (urls: [URL], cachePolicy: ImageCachePolicy, headersMap: [String: String]?, promise: Promise) in
@@ -251,6 +261,7 @@ public final class ImageModule: Module {
 
   static func registerCoders() {
     SDImageCodersManager.shared.addCoder(WebPCoder.shared)
+    SDImageCodersManager.shared.addCoder(PSDCoder.shared)
     SDImageCodersManager.shared.addCoder(SDImageAVIFCoder.shared)
     SDImageCodersManager.shared.addCoder(SDImageSVGCoder.shared)
     SDImageCodersManager.shared.addCoder(SDImageHEICCoder.shared)
@@ -260,5 +271,17 @@ public final class ImageModule: Module {
     SDImageLoadersManager.shared.addLoader(BlurhashLoader())
     SDImageLoadersManager.shared.addLoader(ThumbhashLoader())
     SDImageLoadersManager.shared.addLoader(PhotoLibraryAssetLoader())
+  }
+
+  static func configureCache(config: ImageCacheConfig) {
+    if let maxMemoryCount = config.maxMemoryCount {
+      SDImageCache.shared.config.maxMemoryCount = maxMemoryCount
+    }
+    if let maxDiskSize = config.maxDiskSize {
+      SDImageCache.shared.config.maxDiskSize = maxDiskSize
+    }
+    if let maxMemoryCost = config.maxMemoryCost {
+      SDImageCache.shared.config.maxMemoryCost = maxMemoryCost
+    }
   }
 }

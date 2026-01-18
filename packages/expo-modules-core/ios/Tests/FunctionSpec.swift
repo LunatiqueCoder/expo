@@ -252,6 +252,20 @@ class FunctionSpec: ExpoSpec {
         @Field var url: URL = defaultURL
       }
 
+      struct WithUndefinedRecord: Record {
+        @Field var a: ValueOrUndefined<Double> = .value(unwrapped: 1.0)
+        @Field var b: ValueOrUndefined<Double> = .undefined
+      }
+      
+      struct NullableValueOfUndefinedRecord: Record {
+        @Field var a: ValueOrUndefined<Double?> = .value(unwrapped: 1.0)
+      }
+
+      struct TestEncodable: Encodable {
+        let name: String
+        let version: Int
+      }
+
       afterEach {
         try runtime.eval("globalThis.result = undefined")
       }
@@ -301,12 +315,33 @@ class FunctionSpec: ExpoSpec {
             return TestURLRecord.defaultURL
           }
 
+          Function("withUndefined") {
+            return WithUndefinedRecord()
+          }
+
           Function("withNestedURL") {
             return TestURLRecord()
           }
 
           Function("withOptionalRecord") { (f: TestRecord?) in
             return "\(f?.property ?? "no value")"
+          }
+          
+          Function("withNullableValueOrUndefinded") { (record: NullableValueOfUndefinedRecord) in
+            expect(record.a.isUndefined).to(beFalse())
+            expect(record.a.optional).to(beNil())
+          }
+          
+          Function("withNullableValueOrUndefindedInArray") { (items: [ValueOrUndefined<Double?>]) in
+            expect(items[0].isUndefined).to(beFalse())
+            expect(items[0].optional).to(beNil())
+
+            expect(items[1].isUndefined).to(beTrue())
+            expect(items[1].optional).to(beNil())
+          }
+
+          Function("returnEncodable") {
+            return TestEncodable(name: "Expo SDK", version: 55)
           }
 
           Function("withSharedObject") {
@@ -325,8 +360,20 @@ class FunctionSpec: ExpoSpec {
             p.resolve(SharedString("Test with Promise"))
           }
 
+          Function("returnBaseSharedRef") {
+            return BaseSharedRef(1.2)
+          }
+
+          Function("withEither") { (either: Either<Bool, String>) in
+            return either
+          }
+
           AsyncFunction("withURLAsync") {
             return TestURLRecord.defaultURL
+          }
+
+          AsyncFunction("withUndefinedAsync") {
+            return WithUndefinedRecord()
           }
 
           AsyncFunction("withNestedURLAsync") {
@@ -388,6 +435,22 @@ class FunctionSpec: ExpoSpec {
         expect(try runtime.eval("expo.modules.TestModule.withOptionalRecord({property: \"123\"})").asString()) == "123"
       }
 
+      it("accepts nullable ValueOrUndefinded") {
+        try runtime.eval("expo.modules.TestModule.withNullableValueOrUndefinded({a: null})")
+      }
+
+      it("accepts nullable ValueOrUndefinded in array") {
+        try runtime.eval("expo.modules.TestModule.withNullableValueOrUndefindedInArray([null, undefined])")
+      }
+
+      it("returns encodable struct") {
+        let result = try runtime.eval("expo.modules.TestModule.returnEncodable()")
+        expect(result.kind) == .object
+        expect(result.getObject().getPropertyNames()).to(contain(["name", "version"]))
+        expect(try result.getObject().getProperty("name").asString()) == "Expo SDK"
+        expect(try result.getObject().getProperty("version").asInt()) == 55
+      }
+
       it("returns URL (sync)") {
         let result = try runtime.eval("globalThis.result = expo.modules.TestModule.withURL()")
         expect(result.kind) == .string
@@ -401,6 +464,33 @@ class FunctionSpec: ExpoSpec {
         let urlValue = try runtime.eval("url = globalThis.result")
         expect(urlValue.kind) == .string
         expect(urlValue.getString()) == TestURLRecord.defaultURLString
+      }
+
+      it("returns value or undefined (sync)") {
+        let object = try runtime.eval("globalThis.result = expo.modules.TestModule.withUndefined()")
+        expect(object.kind) == .object
+
+        expect(object.getObject().hasProperty("a")) == true
+        expect(object.getObject().getProperty("a").kind) == .number
+        expect(object.getObject().getProperty("a").getDouble()) == 1.0
+
+        expect(object.getObject().hasProperty("b")) == true
+        expect(object.getObject().getProperty("b").kind) == .undefined
+      }
+
+      it("returns value or undefined (async)") {
+        try runtime.eval("expo.modules.TestModule.withUndefinedAsync().then((result) => { globalThis.result = result; })")
+        expect(safeBoolEval("!!globalThis.result")).toEventually(beTrue(), timeout: .milliseconds(2000))
+
+        let object = try runtime.eval("object = globalThis.result")
+        expect(object.kind) == .object
+
+        expect(object.getObject().hasProperty("a")) == true
+        expect(object.getObject().getProperty("a").kind) == .number
+        expect(object.getObject().getProperty("a").getDouble()) == 1.0
+
+        expect(object.getObject().hasProperty("b")) == true
+        expect(object.getObject().getProperty("b").kind) == .undefined
       }
 
       it("returns a record wit url (sync)") {
@@ -487,7 +577,26 @@ class FunctionSpec: ExpoSpec {
         expect(result.kind) == .string
         expect(result.getString()) == "Test with Promise"
       }
-      
+
+      it("returns shared ref without the Class definition") {
+        // In this case the native shared ref type is not defined as a class in the module's definition.
+        // Nevertheless, it should be converted to JS object that is an instance of the base `SharedRef` class.
+        let isSharedRef = try runtime.eval("expo.modules.TestModule.returnBaseSharedRef() instanceof expo.SharedRef")
+
+        expect(isSharedRef.kind) == .bool
+        expect(isSharedRef.getBool()) == true
+      }
+
+      it("accepts and returns Either value") {
+        let stringResult = try runtime.eval("expo.modules.TestModule.withEither('test string')")
+        expect(stringResult.kind) == .string
+        expect(stringResult.getString()) == "test string"
+
+        let boolResult = try runtime.eval("expo.modules.TestModule.withEither(true)")
+        expect(boolResult.kind) == .bool
+        expect(boolResult.getBool()) == true
+      }
+
       // For async tests, this is a safe way to repeatedly evaluate JS
       // and catch both Swift and ObjC exceptions
       func safeBoolEval(_ js: String) -> Bool {
@@ -511,5 +620,11 @@ class FunctionSpec: ExpoSpec {
 private class SharedString: SharedRef<String> {
   override var nativeRefType: String {
     "string"
+  }
+}
+
+private class BaseSharedRef: SharedRef<Double> {
+  override var nativeRefType: String {
+    "none"
   }
 }

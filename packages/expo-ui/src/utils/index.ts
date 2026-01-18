@@ -2,8 +2,12 @@ export const getTextFromChildren = (children: React.ReactNode): string | undefin
   if (typeof children === 'string') {
     return children;
   }
+  if (typeof children === 'number') {
+    return children.toString();
+  }
   if (Array.isArray(children)) {
-    return children.map(getTextFromChildren).join('');
+    const text = children.map(getTextFromChildren).filter(Boolean).join('');
+    return text || undefined;
   }
   return undefined;
 };

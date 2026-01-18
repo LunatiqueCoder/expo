@@ -10,7 +10,23 @@ import ReactAppDependencyProvider
  Keep functions and markers in sync with https://developer.apple.com/documentation/uikit/uiapplicationdelegate
  */
 @objc(EXExpoAppDelegate)
-open class ExpoAppDelegate: NSObject, UIApplicationDelegate {
+open class ExpoAppDelegate: UIResponder, UIApplicationDelegate {
+  override public init() {
+    // The subscribers are initializing and registering before the main code starts executing.
+    // Here we're letting them know when the `AppDelegate` is being created,
+    // which happens at the beginning of the main code execution and before launching the app.
+    ExpoAppDelegateSubscriberRepository.subscribers.forEach {
+      $0.appDelegateWillBeginInitialization?()
+    }
+    super.init()
+  }
+
+#if os(macOS)
+  required public init?(coder: NSCoder) {
+    super.init(coder: coder)
+  }
+#endif
+
   // MARK: - Initializing the App
 #if os(iOS) || os(tvOS)
 
@@ -92,7 +108,15 @@ open class ExpoAppDelegate: NSObject, UIApplicationDelegate {
   }
 #endif
 
-  // TODO: - Responding to Environment Changes
+  // MARK: - Responding to Environment Changes
+  
+#if os(iOS) || os(tvOS)
+
+  open func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
+    ExpoAppDelegateSubscriberManager.applicationDidReceiveMemoryWarning(application)
+  }
+
+#endif
 
   // TODO: - Managing App State Restoration
 

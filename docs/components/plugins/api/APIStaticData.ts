@@ -11,11 +11,13 @@ export const nonLinkableTypes = [
   'ComponentClass',
   'ComponentProps',
   'ComponentType',
+  'ContextMenuContentProps',
   'DependencyList',
   'E',
   'EmitterSubscription',
   'EventName',
   'EventSubscription',
+  'ExpoModifier',
   'FileSystemDirectory',
   'FileSystemFile',
   'ForwardRefExoticComponent',
@@ -26,6 +28,7 @@ export const nonLinkableTypes = [
   'InferEventParameter',
   'K',
   'Listener',
+  'ModifierConfig',
   'ModuleType',
   'NativeBoundaryEventCallback',
   'NativeSyntheticEvent',
@@ -55,6 +58,7 @@ export const nonLinkableTypes = [
   'ScreenListeners',
   'ServiceActionResult',
   'SourceSkipsKeys',
+  'SubmenuProps',
   'StyleProp',
   'T',
   'TaskOptions',
@@ -108,6 +112,7 @@ export const hardcodedTypeLinks: Record<string, string> = {
   Blob: 'https://developer.mozilla.org/en-US/docs/Web/API/Blob',
   CameraPosition: '/versions/latest/sdk/maps/#cameraposition-2',
   ColorValue: 'https://reactnative.dev/docs/colors',
+  CommonViewModifierProps: 'modifiers',
   Component: 'https://react.dev/reference/react/Component',
   CreateURLOptions: '/versions/latest/sdk/linking/#createurloptions',
   Date: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date',
@@ -145,6 +150,8 @@ export const hardcodedTypeLinks: Record<string, string> = {
   Playback: '/versions/latest/sdk/av/#playback',
   Promise:
     'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise',
+  PromiseLike:
+    'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise',
   PromptMethod: '/versions/latest/sdk/auth-session/#promptmethodoptions',
   PureComponent: 'https://react.dev/reference/react/PureComponent',
   PushTokenListener: '/versions/latest/sdk/notifications/#pushtokenlistenertoken',
@@ -153,6 +160,7 @@ export const hardcodedTypeLinks: Record<string, string> = {
   Readonly: 'https://www.typescriptlang.org/docs/handbook/utility-types.html#readonlytype',
   Required: 'https://www.typescriptlang.org/docs/handbook/utility-types.html#requiredtype',
   SFSymbol: 'https://github.com/nandorojo/sf-symbols-typescript',
+  SFSymbols6_0: 'https://github.com/nandorojo/sf-symbols-typescript',
   ShareOptions: 'https://reactnative.dev/docs/share#share',
   SpeechSynthesisEvent: 'https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisEvent',
   SpeechSynthesisUtterance:
@@ -232,6 +240,8 @@ export const sdkVersionHardcodedTypeLinks: Record<string, Record<string, string 
     Href: '/versions/unversioned/sdk/router/#href-1',
     BufferOptions: '/versions/unversioned/sdk/video/#bufferoptions-1',
     CameraPosition: '/versions/unversioned/sdk/maps/#cameraposition-2',
+    ScrubbingModeOptions: '/versions/unversioned/sdk/video/#scrubbingmodeoptions-1',
+    SeekTolerance: '/versions/unversioned/sdk/video/#scrubbingmodeoptions-1',
   },
 };
 

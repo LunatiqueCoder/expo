@@ -1,7 +1,7 @@
 /**
  A protocol for any type-erased view definition.
  */
-public protocol AnyViewDefinition {
+public protocol AnyViewDefinition: Sendable {
   /**
    An array of view props supported by the view.
    */
@@ -42,5 +42,6 @@ public protocol AnyViewDefinition {
   /**
    Creates a JavaScript object that may be used as a React component prototype.
    */
+  @JavaScriptActor
   func createReactComponentPrototype(appContext: AppContext) throws -> JavaScriptObject
 }
